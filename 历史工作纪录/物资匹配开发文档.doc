@@ -1,0 +1,799 @@
+                              物资匹配开发文档
+一物资匹配最终目标
+1提升匹配速度
+2扩大匹配范畴（尽量让每个与之相关的物资都能匹出）
+3提升匹配正确率（将正确的分数打高，错误的分数调低的人工智能学习）
+
+二物资匹配方案
+
+每个步骤做完的均有代码对应，如果无法找到请使用R的搜索功能
+文件存储于SVN目录下：D:\shuju\部门代码\R代码\物资匹配算法
+使用R包：parallel
+涉及表格：
+gt_material(物资匹配来源库)
+gt_material_keyword(关键词存储)
+gt_material_with_index（物资名称及其对应分词（关键词））
+样本数据（需匹配物资）
+
+1第一步：预选（已完成）
+直接根据条件（名称，规格）进行搜索，如果成功，则匹配成功，提升匹配速度
+具体代码 (这部分尚未完成模块化，需要做成模块以便复用)
+文件：  
+n = data.frame(
+     material_id = numeric(0),
+     goods_id = numeric(0),
+     seq = numeric(0),
+     match_value = numeric(0)
+   )
+   if (type == 'm') {
+     for (i in 1:nrow(test)) {
+       query = paste(
+         'select id from gt.gt_material where name ="',
+         test[i, 'name'],
+         '" and model="',
+         test[i, 'model'],
+         '" limit 1',
+         sep = ''
+       )
+       temp = dbGetQuery(con, query)
+       if (nrow(temp) > 0) {
+         temp = cbind(
+           material_id = temp,
+           goods_id = NA,
+           seq = row.names(test[i,]),
+           match_value = 1
+         )
+         n = rbind(n, temp)
+       }
+     }
+   }
+   else if (type == 'g') {
+     for (i in 1:nrow(test)) {
+       query = paste(
+         'select id from gt.gt_goods where name ="',
+         test[i, 'name'],
+         '" and model="',
+         test[i, 'model'],
+         '" limit 1',
+         sep = ''
+       )
+       temp = dbGetQuery(con, query)
+       if (nrow(temp) > 0) {
+         temp = cbind(
+           material_id = temp,
+           goods_id = NA,
+           seq = row.names(test[i,]),
+           match_value = 1
+         )
+         n = rbind(n, temp)
+       }
+     }
+   }
+   test = cbind(test, seq = row.names(test), stringsAsFactors = FALSE)
+   temptest = test[!(row.names(test) %in% n$seq), ]
+
+
+2第二步：筛选
+a从78万种物资中仅仅选取某一方面的物资进行匹配（大概能筛掉一半的数据，但此举仅仅适用于知道大致功能情况）（已完成）
+文件：char_similarity_modify.R
+ preparebackgrounddata = function(con,type = 1) {
+   if (type==1) {
+     query = "select * from gt.gt_material where id in
+     (select material_id from gt.gt_material_class_relation);"
+   }
+   else if(type==2){
+     query = 'select * from gt.gt_material where id in (select distinct material_id from gt.gt_goods where company_id is not null)'
+   }
+   else if(type==3){
+     query = 'select g.id,g.name,g.material_id,g.model from gt.gt_goods g,gt.gt_goods_info i where g.id = i.goods_id'
+   }
+   material_list = dbGetQuery(con,query)
+   return(material_list)
+   }
+
+b目前让待匹配物资名称去和库里物资名称做字符交集，筛掉无法跟物资产生交集的部分，大大提升匹配速度（已完成,内嵌在循环之中，因耗时较长，如果使用分类标签可放弃或改良）
+文件：char_similarity_modify.R
+ll= lapply(strsplit(mainset[,a_colname[1]],split=''),intersect,unlist(strsplit(testset[i,t_colname[1]],split='')))
+filteredset = mainset[lapply(ll,length)>0,]
+
+
+c对具体物资抽象生成虚拟分类，通过虚拟分类缩小范围，加速整体进程
+（已完成）
+文件：material_match.R
+对物资进行分词处理并存入数据库gt_statistics以方便使用
+
+initialization = function(con){
+  library(devtools)
+  library(RMySQL)
+  library(jiebaR)
+  library(tidyr)
+  # con = mysqlconn(predeploy_para)
+  material_name = dbGetQuery(con,"select DISTINCT name from gt.gt_material")
+  keys = worker("keywords",topn=10)
+  material_key=lapply(material_name$name,keywords,keys)
+  # material_name2 <- as.data.frame(material_key)
+  material_name$key_word = sapply(material_key,paste,collapse = ',')
+  material_row <- separate_rows(material_name,key_word,sep=',')
+  material <- data.frame(keyword=unique(material_row$key_word),stringsAsFactors=F)
+  # material=data.frame(clear_data(remove_empty_data,material,c('keyword')))
+  material=data.frame(keyword=material[-which(material$keyword==''),],stringsAsFactors=F)
+  # material_copy=material
+  Encoding(material$keyword)='utf8'
+  Encoding(material_name$name)='utf8'
+  Encoding(material_name$key_word)='utf8'
+  new_con = mysqlconn(predeploy_para,'utf8')
+  new_material_name = dbGetQuery(new_con,"select DISTINCT name from gt.gt_material")
+  combined_material_name = data.frame(new_material_name$name,material_name$key_word)
+  dbWriteTable(con,'gt_material_keyword',material,overwrite=T,row.names=F)
+  dbWriteTable(con,'gt_material_with_index',combined_material_name,overwrite=T,row.names=F)
+  dbDisconnect(con)
+  dbDisconnect(new_con)
+}
+
+
+3第三步：分区多核或分类进行并行匹配
+由于需要计算的数据量过大，所以采用并行计算（已完成）
+文件：material_match.R
+getClusters = function(sepnum=16){
+   cl = makeCluster(sepnum)
+   clusterEvalQ(cl, parse('char_similarity.R'))
+   clusterExport(
+     cl,
+     list(
+       "whole_similarity",
+       "vector_similarity",
+       "matchresult",
+       "correlation",
+       "get_max_commen_char"
+     )
+   )
+   return(cl)
+ }
+
+m = match_material_with_classify(sample_list[i,],material_list_to_match,16,cl)
+stopCluster(cl)
+
+文件：char_similarity_modify.R
+
+ match_material_with_classify = function(test,material_list,sepnum = 16,cluster) {
+   source('~/R/char_similarity.R', encoding = 'UTF-8')
+   library('parallel')
+   xx = main_match_with_classify(test, material_list,cluster=cl)
+   m = data.frame(material_id=NA,goods_id=NA,match_value=NA)
+   m = m[-1,]
+   print('test')
+   print(nrow(test))
+   print('material_list')
+   print(nrow(material_list))
+   if(nrow(material_list)>500){
+   for (i in 1:nrow(test)) {
+     m[i, 'material_id'] = xx[(i-1)*sepnum+which.max(unlist(xx[((i - 1) * sepnum + 1):(i *
+                                                    sepnum), 'max_value'])), 'match_id']
+     m[i, 'match_value'] = max(unlist(xx[((i - 1) * sepnum + 1):(i * sepnum), 'max_value']))
+   }
+   }
+   else{
+     m[1:nrow(xx),'match_value'] = xx[,'max_value']
+     m[1:nrow(xx),'material_id'] = xx[,'match_id']
+   }
+   return(m)
+ }
+
+ main_match_with_classify = function(testset, mainset, sepnum = 16,t_colname=c('name','model'),a_colname=c('name','model'),cluster) {
+   if (nrow(mainset) <= 500) {
+     final_result = matchresult(mainset,testset,c(0.45,0.55),t_colname,a_colname,T)
+   }
+   else{
+     final_results = list()
+     for(i in 1:nrow(testset)){
+       print(paste(testset$num,'寮�濮嬪惊鐜?',' ',Sys.time()))
+       filteredset = mainset
+       print(nrow(filteredset))
+       mainsets = seperate(filteredset, sepnum)
+       print(paste(Sys.time(),' start multi-core calculation'))
+       results = parLapply(
+         cl,
+         mainsets,
+         matchresult,
+         testset = testset[i,],
+         weight = c(0.45,0.55),
+         t_colname = t_colname,
+         a_colname = a_colname,
+         whole = F    
+       )
+       temp_results = do.call("rbind", results)
+       final_results[[i]] = temp_results
+     }
+     final_result = do.call("rbind",final_results)
+     print(paste(Sys.time(),'end multi-core calculation'))
+   }
+   return(final_result)
+ }
+
+4检查结果并优化算法，查看结果并设想（未完成）
+思路：根据不同虚拟分类采用不同权重甚至不同细节算法
+
+5我们可能需要根据算法得出的结果去更新物资库，使得以后的匹配得到提升（设计中）
+有机制将未能匹配的物资纳入整个物资及分类体系
+
+6近义词融合阶段，通过建立近义词库将字面不同的近义词或同义词关联起来（未完待续）
+
+7核心部分
+采用动态规划法求最长公共子序列
+get_max_commen_char = function(A,B,ifvectorized=FALSE){
+  if(!ifvectorized){
+    A=strsplit(A,"")[[1]]
+    B=strsplit(B,"")[[1]]
+  }
+  I=length(A)
+  J=length(B)
+  LEO=matrix(nrow=I+1,ncol=J+1)
+  LEO[1,]=0
+  LEO[,1]=0
+  for(i in 2:(I+1)){
+    for(j in 2:(J+1)){
+      if(A[i-1]==B[j-1]){
+        LEO[i,j]=LEO[i-1,j-1]+1
+      }
+      else if(LEO[i-1,j]>=LEO[i,j-1]){
+        LEO[i,j]=LEO[i-1,j]
+      }
+      else{
+        LEO[i,j]=LEO[i,j-1]
+      }
+    }
+  }
+  return(LEO)
+}
+注：批量匹配和单独匹配可能采用的方案有所区别，具体方案在思考
+
+
+代码文件：
+material_match.R
+
+测试配置向量
+product_para = data.frame(host="192.168.1.211", port= 3310, user="product", 
+                          password = "p123789", dbname="testsite",stringsAsFactors = FALSE)
+
+预发布配置向量
+predeploy_para = data.frame(host="192.168.1.212", port= 43666, user="yufabu", 
+                            password = "2015SJGTWYUFABUgxm1234560", dbname="gt_statistics",stringsAsFactors = FALSE)
+
+用来建立连接的函数，默认为在win环境下，所以使用code=’gbk’,如果在linux环境下，请采用code=’utf8’
+输入：连接配置参数，编码
+输出：连接名
+mysqlconn <- function(parameter,code='gbk') {
+  library(RMySQL)
+  library(plyr)
+  library(geosphere)
+  con <- dbConnect(MySQL(), host=parameter$host, port= parameter$port, 
+                   user=parameter$user, password = parameter$password, dbname=parameter$dbname)
+  if(code=='gbk')
+  dbSendQuery(con, 'SET NAMES gbk')
+  else
+  dbSendQuery(con, 'SET NAMES utf8')
+  return(con)
+}
+
+此函数录入以EXCEL方式保存的待匹配物资文件
+输入：文件路径，待格式化列号，需改名列号，EXCEL的sheet号
+输出：清洗过的待匹配数据集
+preparetestdata = function(filename = '~/R/menghua_material.xlsx',colformat=c(2,4,6,8,12),colchangename = c(6,8),sheetname ='Sheet1'){
+  library('xlsx')
+  sample_list = read.xlsx(filename,sheetname)
+  sample_list = formatdataframe(sample_list,colformat)
+  colnames(sample_list)[colchangename] = c('name','model')
+  return(sample_list)
+}
+
+此函数负责提取出物资的分词和关键词
+输入：连接名
+输出：无（所有结果已存入数据库）
+initialization = function(con){
+  library(devtools)
+  library(RMySQL)
+  library(jiebaR)
+  library(tidyr)
+  # con = mysqlconn(predeploy_para)
+  material_name = dbGetQuery(con,"select DISTINCT name from gt.gt_material")
+  keys = worker("keywords",topn=10)
+  material_key=lapply(material_name$name,keywords,keys)
+  # material_name2 <- as.data.frame(material_key)
+  material_name$key_word = sapply(material_key,paste,collapse = ',')
+  material_row <- separate_rows(material_name,key_word,sep=',')
+  material <- data.frame(keyword=unique(material_row$key_word),stringsAsFactors=F)
+  # material=data.frame(clear_data(remove_empty_data,material,c('keyword')))
+  material=data.frame(keyword=material[-which(material$keyword==''),],stringsAsFactors=F)
+  # material_copy=material
+  Encoding(material$keyword)='utf8'
+  Encoding(material_name$name)='utf8'
+  Encoding(material_name$key_word)='utf8'
+  new_con = mysqlconn(predeploy_para,'utf8')
+  new_material_name = dbGetQuery(new_con,"select DISTINCT name from gt.gt_material")
+  combined_material_name = data.frame(new_material_name$name,material_name$key_word)
+  dbWriteTable(con,'gt_material_keyword',material,overwrite=T,row.names=F)
+  dbWriteTable(con,'gt_material_with_index',combined_material_name,overwrite=T,row.names=F)
+  dbDisconnect(con)
+  dbDisconnect(new_con)
+}
+
+此函数依靠具体的函数参数f进行数据清洗,比如remove_empty_data
+clear_data = function(f,origin_data,col_names){
+  result_data = f(origin_data,col_names)
+  return(result_data)
+}
+
+is.empty.origin = function(key){
+  if(is.na(key)){
+    return(TRUE)
+  }
+  else if(gsub("([ ])","",key)==''){
+    return(TRUE)
+  }
+  else{
+    return(FALSE)
+  }
+}
+#去除空行
+remove_empty_data = function(origin_data,col_names){
+  is.empty = Vectorize(is.empty.origin) #函数向量化
+  empty_logic_list = lapply(origin_data[,col_names],is.empty)
+  result = T
+  for(l in empty_logic_list){
+    result = result&l
+  }
+  result_data = origin_data[!result,]
+  return(result_data)
+}
+#对错误exeption进行处理(此代码暂未被使用)
+test=function(){
+  # try(stop(simpleMessage('comeon')))
+  n = try(parse(text='a=1'))
+  m=tryCatch(parse(test='a=1'))
+  print(n)
+  print(2)
+}
+
+
+主匹配函数
+输出：匹配结果，包含字段匹配上的物资id,匹配分数
+main = function(){
+setwd("~/R")
+source('~/R/char_similarity_modify.R', encoding = 'UTF-8')
+source('~/R/material_match.R', encoding = 'UTF-8')  
+preconn = mysqlconn(predeploy_para)
+# cond = tryCatch(dbReadTable(con,'gt_material_keyword'),error = function(e){return(T)})
+cond1 = !dbExistsTable(preconn,'gt_material_keyword')
+cond2 = !dbExistsTable(preconn,'gt_material_with_index')
+#tryCatch(expr,error,next,finally)
+if(cond1|cond2){
+  initialization(preconn)
+}
+material = dbGetQuery(preconn,'select * from gt_material_keyword')
+material_name = dbGetQuery(preconn,'select * from gt_material_with_index')
+material_list = preparebackgrounddata(preconn)
+sample_list = preparetestdata('~/R/物资匹配实验数据.xlsx', 1:6, 2:3,'Sheet1')
+sample_list = clear_data(remove_empty_data,sample_list,c('name','model'))
+ms = list()
+i=1
+cl = getClusters(16) #建立多个线程
+for(name in sample_list$name){
+# i=3
+# name = sample_list$name[i]
+gresult = lapply(material$keyword,grep,name) #看关键词是否包含在待匹配词内
+gresult2 = lapply(gresult, length) > 0
+words = material[gresult2,] #this place need to be checked
+index_results = lapply(words,grep,material_name$key_word)
+index_result = do.call('c',index_results)
+result2 = material_name[index_result,]
+material_list_to_match = material_list[material_list$name%in%result2$name,]
+# colnames(sample_list)[which(colnames(sample_list)=='material_name')]='name'
+m = match_material_with_classify(sample_list[i,],material_list_to_match,16,cl)
+ms[[i]]=m
+i=i+1
+}
+final_result2 = do.call('rbind',ms)
+stopCluster(cl)
+dbDisconnect(preconn)
+return(final_result2)
+}
+
+
+char_similarity_modify.R
+本质都是数学
+#找出两个向量xn,ym最大共有子序列zk函数
+输入：待匹配字符串A,字符串B，是否是向量
+输出：动态规划矩阵（仅有数目，无箭头增长方向）
+library('parallel')
+get_max_commen_char = function(A,B,ifvectorized=FALSE){
+  if(!ifvectorized){
+    A=strsplit(A,"")[[1]]
+    B=strsplit(B,"")[[1]]
+  }
+  I=length(A)
+  J=length(B)
+  LEO=matrix(nrow=I+1,ncol=J+1)
+  LEO[1,]=0
+  LEO[,1]=0
+  for(i in 2:(I+1)){
+    for(j in 2:(J+1)){
+      if(A[i-1]==B[j-1]){
+        LEO[i,j]=LEO[i-1,j-1]+1
+      }
+      else if(LEO[i-1,j]>=LEO[i,j-1]){
+        LEO[i,j]=LEO[i-1,j]
+      }
+      else{
+        LEO[i,j]=LEO[i,j-1]
+      }
+    }
+  }
+  return(LEO)
+}
+
+利用最长子序列进行物资相似度计算
+输入：字符串1，字符串2
+输出：相似度
+correlation = function(A,B){
+  if(is.na(A)||is.na(B)){
+    if(is.na(A)&&is.na(B)){
+      return(0.66) #当两者都是NA时候，给予一定相似度
+    }
+    else{
+      return(0)
+    }
+  }
+  if(nchar(A)==0||nchar(B)==0){
+    if(nchar(A)==nchar(B)){
+      return(0.66)
+    }
+    else{
+      return(0)
+    }
+  }
+  devider = (nchar(A)+nchar(B))/2 #以两个序列的平均长度作为分母
+  nominator = get_max_commen_char(A,B)[nchar(A)+1,nchar(B)+1] #以两个序列的最长公共子序列作为分子
+  return(nominator/devider) #
+}
+
+求向量的相似度
+输入：待匹配向量甲，待匹配向量乙
+输出：相似度
+
+ vector_similarity = function(v1,v2){
+  s = mapply(FUN="correlation",v1,v2)
+  return(s)
+ }
+ 
+
+
+将向量连接为字符后求相似度
+输入：待匹配向量甲，待匹配向量乙
+输出：相似度
+ whole_similarity = function(v1,v2){
+   s1 = paste(v1,collapse = ' ')
+   s2 = paste(v2,collapse = ' ')
+   return(correlation(s1,s2))
+ }
+ 
+ #输入一个模板集合和一个待测试集合
+ #输出以待测试集合为基准的集合，包含匹配信息
+ 未加入多线程的物资匹配主算法
+输入依次为：匹配参照集合（如78万种物资），待匹配集合，权重，待匹配集合字段名，匹配参照集合字段名，是否进行向量式匹配
+输出：其中前几列保持了待匹配集合所有字段，倒数第二和第一列分别为匹配上的物资id和匹配分数
+ matchresult = function(standardset,testset,weight,t_colname,a_colname,whole = F){
+   rs = data.frame(matrix(numeric(),ncol=ncol(testset)+2))
+   for(i in 1:nrow(testset)){
+     df = data.frame(matrix(numeric(0),ncol = length(weight)+1))
+     for(j in 1:nrow(standardset)){
+       if(!whole){
+         result = vector_similarity(testset[i,t_colname],standardset[j,a_colname])
+         score = sum(result*weight)}
+       else{
+         result = whole_similarity(testset[i,t_colname],standardset[j,a_colname])
+         score = result
+         weight = 1
+       }
+       fresult = c(result,"score"=score)
+       df = rbind(df,fresult)
+     }
+     max = max(df[,length(weight)+1])
+     max_index = which.max(df[,length(weight)+1])
+     added = data.frame(t(c(testset[i,],max,standardset[max_index,"id"]))) #,standardset[max_index,"最终编???"]
+     colnames(added) = colnames(rs)
+     rs = rbind(rs,added)
+   }
+   colnames(rs)[(ncol(rs)-1):ncol(rs)] = c('max_value','match_id')
+   return(rs)
+ }
+ 
+ 背景物资准备
+输入：连接名，背景物资类型：1为全物资，2为有交易记录物资，3为商城物资
+输出：待匹配物资集合
+ preparebackgrounddata = function(con,type = 1) {
+   if (type==1) {
+     query = "select * from gt.gt_material where id in
+     (select material_id from gt.gt_material_class_relation);"
+   }
+   else if(type==2){
+     query = 'select * from gt.gt_material where id in (select distinct material_id from gt.gt_goods where company_id is not null)'
+   }
+   else if(type==3){
+     query = 'select g.id,g.name,g.material_id,g.model from gt.gt_goods g,gt.gt_goods_info i where g.id = i.goods_id'
+   }
+   material_list = dbGetQuery(con,query)
+   return(material_list)
+   }
+ 
+产生多线程
+输入：线程数sepnum
+输出：产生的个数为sepnum的线程群
+ getClusters = function(sepnum=16){
+   cl = makeCluster(sepnum)
+   clusterEvalQ(cl, parse('char_similarity.R'))
+   clusterExport(
+     cl,
+     list(
+       "whole_similarity",
+       "vector_similarity",
+       "matchresult",
+       "correlation",
+       "get_max_commen_char"
+     )
+   )
+   return(cl)
+ }
+ 
+加入了多线程以及物资虚拟按关键词分类后的匹配函数
+输入依次为：待匹配集合，匹配参照集合，线程数，待匹配字段，匹配参照字段，集群
+输出：其中前几列保持了待匹配集合所有字段，倒数第二和第一列分别为匹配上的物资id和匹配分数
+ main_match_with_classify = function(testset, mainset, sepnum = 16,t_colname=c('name','model'),a_colname=c('name','model'),cluster) {
+   if (nrow(mainset) <= 500) {
+     final_result = matchresult(mainset,testset,c(0.45,0.55),t_colname,a_colname,T)
+   }
+   else{
+     final_results = list()
+     for(i in 1:nrow(testset)){
+       print(paste(testset$num,'寮�濮嬪惊鐜?',' ',Sys.time()))
+       filteredset = mainset
+       print(nrow(filteredset))
+       mainsets = seperate(filteredset, sepnum)
+       print(paste(Sys.time(),' start multi-core calculation'))
+       results = parLapply(
+         cl,
+         mainsets,
+         matchresult,
+         testset = testset[i,],
+         weight = c(0.45,0.55),
+         t_colname = t_colname,
+         a_colname = a_colname,
+         whole = F    
+       )
+       temp_results = do.call("rbind", results)
+       final_results[[i]] = temp_results
+     }
+     final_result = do.call("rbind",final_results)
+     print(paste(Sys.time(),'end multi-core calculation'))
+   }
+   return(final_result)
+ }
+ 
+采用了多线程但是没有采用虚拟分类的物资匹配算法函数
+输入依次为：待匹配集合，匹配参照集合，线程数，待匹配字段名，参照字段名
+输出为：匹配结果，包含每个线程匹配的结果的汇总（未求各个线程匹配的最大值）
+其中前几列保持了待匹配集合所有字段，倒数第二和第一列分别为匹配上的物资id和匹配分数
+ main_match_mh = function(testset, mainset, sepnum = 16,t_colname=c('name','model'),a_colname=c('name','model')) {
+   if (nrow(mainset) <= 500) {
+     final_result = matchresult(mainset,testset,c(0.45,0.55),t_colname,a_colname,T)
+   }
+   else{
+     final_results = list()
+     cl = makeCluster(sepnum)
+     clusterEvalQ(cl, parse('char_similarity.R'))
+     # clusterEvalQ(cl,source('char_similarity.R'))
+     clusterExport(
+       cl,
+       list(
+         "whole_similarity",
+         "vector_similarity",
+         "matchresult",
+         "correlation",
+         "get_max_commen_char"
+       )
+     )
+     for(i in 1:nrow(testset)){
+       print(paste(testset$num,'寮�濮嬪惊鐜?',' ',Sys.time()))
+       ll = lapply(strsplit(mainset[,a_colname[1]],split=''),intersect,unlist(strsplit(testset[i,t_colname[1]],split='')))
+       filteredset = mainset[lapply(ll,length)>0,]
+       # filteredset = mainset
+       print(nrow(filteredset))
+       mainsets = seperate(filteredset, sepnum)
+       print(paste(Sys.time(),' start multi-core calculation'))
+       results = parLapply(
+         cl,
+         mainsets,
+         matchresult,
+         testset = testset[i,],
+         weight = c(0.45,0.55),
+         t_colname = t_colname,
+         a_colname = a_colname,
+         whole = F    
+       )
+       temp_results = do.call("rbind", results)
+       final_results[[i]] = temp_results
+       # write.xlsx(temp_results,paste('material',i,'.xlsx',sep=''))
+       # print(paste('save file',i,'successful'))
+     }
+     stopCluster(cl)
+     final_result = do.call("rbind",final_results)
+     print(paste(Sys.time(),'end multi-core calculation'))
+   }
+   return(final_result)
+ }
+ 
+将集合分为若干块的函数（与多线程联合）
+输入：待分割数据框，分割成多少个
+输出：分割后的数据框集群，以list的形式返回
+ seperate = function(dataset,num){
+   rownum = nrow(dataset)
+   linenum = floor(rownum/num)
+   datasets = list()
+   tempsample = sample(1:nrow(dataset),nrow(dataset))
+   tempset = dataset[tempsample,]
+   for(i in 1:(num-1)){
+     datasets[[i]] = tempset[((i-1)*linenum+1):(i*linenum),]
+   }
+   datasets[[num]] = tempset[((num-1)*linenum+1):rownum,]
+   return(datasets)
+ }
+ 
+对数据框进行格式化（否则可能是乱码，仅windows环境需要）
+输入：待格式化数据框，待格式化具体字段
+输出：格式化后的数据框
+ formatdataframe = function(data,colnum){
+   for(i in colnum){
+     data[,i]=iconv(data[,i],from="utf-8",to="gbk")
+     # within(data,{
+     #   
+     # })
+   }
+   colnames(data) = iconv(colnames(data),from="utf-8",to="gbk")
+   return(data)
+ }
+ 
+没有采用虚拟分类的匹配算法，鲁班网采用，因商城物资并未采用主站物资分类体系故比较复杂需要考虑各种情况
+输入依次为：待匹配集合，匹配参照集合，线程数，得分阈值（超过此值才算匹配成功），匹配分类（g表示商城，m表示主站）,连接
+返回值为匹配结果数据框，有四列，分别为:物资id,商品id,序列号（保持与原待匹配文件同顺序），匹配值
+ match_material = function(test,
+                           material_list,
+                           sepnum = 16,
+                           threshold = 0.5,
+                           type,
+                           con) {
+   library('parallel')
+   n = data.frame(
+     material_id = numeric(0),
+     goods_id = numeric(0),
+     seq = numeric(0),
+     match_value = numeric(0)
+   )
+   if (type == 'm') {
+     for (i in 1:nrow(test)) {
+       query = paste(
+         'select id from gt.gt_material where name ="',
+         test[i, 'name'],
+         '" and model="',
+         test[i, 'model'],
+         '" limit 1',
+         sep = ''
+       )
+       temp = dbGetQuery(con, query)
+       if (nrow(temp) > 0) {
+         temp = cbind(
+           material_id = temp,
+           goods_id = NA,
+           seq = row.names(test[i,]),
+           match_value = 1
+         )
+         n = rbind(n, temp)
+       }
+     }
+   }
+   else if (type == 'g') {
+     for (i in 1:nrow(test)) {
+       query = paste(
+         'select id from gt.gt_goods where name ="',
+         test[i, 'name'],
+         '" and model="',
+         test[i, 'model'],
+         '" limit 1',
+         sep = ''
+       )
+       temp = dbGetQuery(con, query)
+       if (nrow(temp) > 0) {
+         temp = cbind(
+           material_id = temp,
+           goods_id = NA,
+           seq = row.names(test[i,]),
+           match_value = 1
+         )
+         n = rbind(n, temp)
+       }
+     }
+   }
+   test = cbind(test, seq = row.names(test), stringsAsFactors = FALSE)
+   temptest = test[!(row.names(test) %in% n$seq), ]
+   m = data.frame(
+     material_id = NA,
+     goods_id = NA,
+     match_value = NA,
+     seq = NA
+   )
+   m = m[-1, ]
+   if (nrow(temptest) > 0) {
+     xx = main_match_mh(temptest, material_list)
+     if (nrow(material_list) > 500) {
+       if (type == 'm') {
+         for (i in 1:nrow(temptest)) {
+           m[i, 'material_id'] = xx[(i - 1) * sepnum + which.max(unlist(xx[((i - 1) * sepnum + 1):(i * sepnum), 'max_value'])), 'match_id']
+           m[i, 'match_value'] = max(unlist(xx[((i - 1) * sepnum + 1):(i * sepnum), 'max_value']))
+           m[i, 'seq'] = temptest[i, 'seq']
+         }
+       }
+       else{
+         for (i in 1:nrow(temptest)) {
+           m[i, 'goods_id'] = xx[(i - 1) * sepnum + which.max(unlist(xx[((i - 1) * sepnum + 1):(i * sepnum), 'max_value'])), 'match_id']
+           m[i, 'match_value'] = max(unlist(xx[((i - 1) * sepnum + 1):(i * sepnum), 'max_value']))
+           m[i, 'seq'] = temptest[i, 'seq']
+         }
+       }
+     }
+     else{
+       if (type == 'm') {
+         for (i in 1:nrow(temptest)) {
+           m[i, 'material_id'] = xx[i, 'match_id']
+           m[i, 'match_value'] = xx[i, 'max_value']
+           m[i, 'seq'] = temptest[i, 'seq']
+         }
+       }
+       else{
+         for (i in 1:nrow(temptest)) {
+           m[i, 'match_value'] = xx[i, 'max_value']
+           m[i, 'goods_id'] = xx[i, 'match_id']
+           m[i, 'seq'] = temptest[i, 'seq']
+         }
+       }
+     }
+   }
+   # m = cbind(m,id = row.names(test))
+   m = rbind(m, n)
+   m = m[m$match_value > threshold, ]
+   return(m)
+ }
+ 
+物资匹配算法采用了虚拟分类
+输入依次为：待匹配集合，物资集合，线程数，集群
+返回：匹配后的结果,有三列（匹配物资id,匹配商品id,匹配值）
+ match_material_with_classify = function(test,material_list,sepnum = 16,cluster) {
+   source('~/R/char_similarity.R', encoding = 'UTF-8')
+   library('parallel')
+   xx = main_match_with_classify(test, material_list,cluster=cl)
+   m = data.frame(material_id=NA,goods_id=NA,match_value=NA)
+   m = m[-1,]
+   print('test')
+   print(nrow(test))
+   print('material_list')
+   print(nrow(material_list))
+   if(nrow(material_list)>500){
+   for (i in 1:nrow(test)) {
+     m[i, 'material_id'] = xx[(i-1)*sepnum+which.max(unlist(xx[((i - 1) * sepnum + 1):(i *
+                                                    sepnum), 'max_value'])), 'match_id']
+     m[i, 'match_value'] = max(unlist(xx[((i - 1) * sepnum + 1):(i * sepnum), 'max_value']))
+   }
+   }
+   else{
+     m[1:nrow(xx),'match_value'] = xx[,'max_value']
+     m[1:nrow(xx),'material_id'] = xx[,'match_id']
+   }
+   return(m)
+ }

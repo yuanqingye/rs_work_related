@@ -1,0 +1,66 @@
+Make R object pass by reference:
+setRefClass("MyClass",
+    fields=list(
+        name="character"
+    )
+)
+instance1 <- new("MyClass",name="Hello1")
+instance2 <- new("MyClass",name="Hello2")
+array = c(instance1,instance2)
+instance1$name <- "World!"
+
+See also the mutatr and proto,R.oo packages
+
+This will remove all columns containing at least one NA(With data.table could be efficient for large dataset):
+Itun[ , colSums(is.na(Itun)) == 0]
+cluster_set = cluster_set[sapply(cluster_set, function(v) !any(is.na(v)))]
+newdf <- t(na.omit(t(df)))
+Filter(function(x)!all(is.na(x)), df)
+
+The color.id function in plotrix will convert color from code to name
+
+View(contract_raw[,.(.N,unique(CATEGORY_CODE_2)),by = CATEGORY_NAME_2])
+
+Using this method 
+outputMatrix <- rpois(length(inputMatrix), inputMatrix)
+dim(outputMatrix) <- dim(inputMatrix)
+
+#匿名函数即刻实现
+(function(x)x*x)(matrix(1:10, nrow=2))
+
+system.time( r1 <- apply(m,1:2,y) ) # 4.89 secs
+system.time( r2 <- structure(sapply(m, y), dim=dim(m)) ) # 2.89 secs
+system.time( r3 <- structure(vapply(m, y, numeric(1)), dim=dim(m)) ) # 1.66 secs
+m <- matrix(1:10, nrow=2)
+m[] <- vapply(m, y, numeric(1))
+You simply assign the new values to the object using m[] <-. Then all other attributes are preserved (like dim, dimnames, class etc).
+You can also do it with subscripting because == is already vectorized:
+m[m %% 3 == 0] <- NA
+
+https://stackoverflow.com/questions/51857961/r-can-we-convert-a-matrix-whose-essential-is-list-to-a-matrix-whose-essential-is/51869028#51869028
+Actually I have figured out how to convert a list matrix to a character matrix: here is my step:
+
+#initialize
+m = matrix(list(rep(character(0),4)),nrow = 2,ncol = 2)
+#convert to dataframe to fortify its' 2 col 2 row shape
+m = as.data.frame(m)
+#unlist it and fill into the 2 col 2 row shape in data.frame
+m[] = lapply(m,function(x){sapply(x,function(y)
+{ifelse(length(y)==1,y,NA)})})
+#convert it to matrix
+m = as.matrix(m)
+or put it more simple:
+
+m2 = matrix(character(0),nrow = nrow(m),ncol = ncol(m))
+m2[] = sapply(m,function(x){ifelse(length(x)==1,x,NA)})
+only problem is the matrix's character(0) has change to NA, which I think is a good point, the essential meaning is the same and for NA we have more way to deal with
+
+And @John Coleman has an opinion I think is also memorable, that a problem may has another easy path to solute, I am also thinking about it myself and if I get a solution I will also post here. But regarding this problem itself,it is solved.
+
+put the data.frame in a specified order
+df[match(target, df$name),]
+
+#r order data.frame by given vector
+df <- data.frame(name=letters[1:4], value=c(rep(TRUE, 2), rep(FALSE, 2)))
+target <- c("b", "c", "a", "d")
+df[match(target, df$name),]

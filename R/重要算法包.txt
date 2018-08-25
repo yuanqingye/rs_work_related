@@ -1,0 +1,86 @@
+--party
+cforest
+--rpart
+randomforest
+
+--SVM的包
+e1072 package
+
+--apriori
+arules
+arulesSequences
+
+--kmeans
+stats自带
+
+--聚类包
+cluster pam (not stable, depends on the initial value)
+fpc pamk
+
+三维图包
+1scatterplot3d
+2base::persp,wireframe
+3rgl::surface3d
+4*plotly
+
+地图包
+library(maps) #creating geographical maps
+library(mapdata) #contains basic data for 'maps'
+library(maptools) #tools for handling spatial objects
+library(mapproj) #for creating projected maps
+library(raster) #toos to deal with raster maps
+library(ggplot2) #create maps
+library(gpclib)  #general polygon clipper
+RgoogleMaps、plotGoogleMaps
+library(rgeos)
+library(rgdal)
+library(ggmap)
+library(geosphere)
+library(OasisR)
+
+精算包
+actuar 包
+
+速度察看包
+require(microbenchmark)
+
+--特征选择包
+glmnet(lasso)
+
+--半监督算法: 先找出内部结构,再辅助监督标记
+如图论推理算法（Graph Inference）或者拉普拉斯支持向量机（Laplacian SVM.）等。 
+
+--深度学习(神经网格)
+二、R语言中的神经网络包：
+R语言中已经有许多用于神经网络的package。例如nnet、AMORE以及neuralnet，
+nnet提供了最常见的前馈反向传播神经网络算法。
+AMORE包则更进一步提供了更为丰富的控制参数，并可以增加多个隐藏层。
+neuralnet包的改进在于提供了弹性反向传播算法和更多的激活函数形式。
+但以上各包均围绕着BP网络，并未涉及到神经网络中的其它拓扑结构和网络模型。而新出炉的RSNNS包则在这方面有了极大的扩充。
+
+BP神经基础
+CNN卷积神经网络
+RNN循环神经网络
+TENSOR FLOW
+
+不同算法在不同位置的准确度，效果都不一样
+
+As far as I know, and I've researched this issue deeply in the past, there are no predictive modeling techniques that designed to handle both types of input at 
+the same time without simply transforming the type of the features.
+Yet, distance/kernel based models (e.g., K-NN, NN regression, support vector machines) can be used to handle mixed type feature space by defining a “special” 
+distance function. Such that, for every feature, applies an appropriate distance metric (e.g., for a numeric feature we’ll calculate the Euclidean distance of 2 
+numbers while for a categorical feature we’ll simple calculate the overlap distance of 2 string values). So, the distance/similarity between user u1u1 and u2u2 
+in feature fifi, as follows: d(u1,u2)fi=(dis?categorical(u1,u2)fid(u1,u2)fi=(dis?categorical(u1,u2)fi if feature fifi is categorical, 
+d(u1,u2)fi=dis?numeric(u1,u2)fid(u1,u2)fi=dis?numeric(u1,u2)fi if feature fifi is numerical. and 1 if feature fifi is not defined in u1u1 or u2u2.
+Some known distance function for categorical features:
+Levenshtien distance (or any form of "edit distance")
+Longest common subsequence metric
+Gower distance
+And more metrics here
+
+I know it's been a while since this question was posted, but if you're still looking at this problem (or similar ones) you may want to consider using generalized
+ additive models (GAM's). I'm no expert, but these models allow you to combine different models to create a single prediction. The process used to find 
+ coefficients for the models you put in solves for all of them at once, so you can send a generalized additive model your favorite model for categorical 
+ predictors and your favorite model for continuous predictors and get a single model that minimizes RSS or whatever other error criterion you want to use.
+
+Off the top of my head, the only software package which I know has an implementation of GAM's is the language R, but I'm sure there are others.

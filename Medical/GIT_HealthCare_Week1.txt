@@ -1,0 +1,23 @@
+Incentive:to do more, to earn more,specialist driven
+Structure: 
+1Physician oriented, doctor has info and then the power: they can rec expansive but not useful service
+2The healthcare services system is isolated and discontinous, very bad for chronical disease(one of the cause is specialized healthcare)
+3Special doctor dominated
+4Want to transform to patient oriented, which can be good experience to both doctor and patients(By means of care coordination and the communication;Higher quality,Lower cost)
+
+Quality care
+Patient centered
+HIT
+Practice Organization
+
+I could see the problem:
+chronical disease dominate the people beyond 45 years old
+99% has at least one disease
+96% has multi-disease
+20% has 5 or more and these people cost 50%
+
+medical error cause 200000 accident
+in which 50000 could lead to death
+
+learning health System(a positive feed back system)
+adopt data-> data integration -> analysis then pass to provider for practice-> step1 again

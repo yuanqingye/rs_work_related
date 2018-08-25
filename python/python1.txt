@@ -1,0 +1,21 @@
+总纲领：
+#!/usr/bin/env python
+print('Hello World!')
+
+r = numpy.random.rand(2, 10, 10) 
+Now we want to reshape to 5 X 5 x 8:
+numpy.reshape(r, shape=(5, 5, 8)) 
+will do the job.
+Note that, once you fix first dim = 5 and second dim = 5, you don't need to determine third dimension. To assist your laziness, python gives the option of -1:
+numpy.reshape(r, shape=(5, 5, -1)) 
+
+https://pythonhosted.org/spyder/editor.html
+How to define a code cell¶
+A “code cell” is a concept similar to MATLAB’s “cell” (except that there is no “cell mode” in Spyder), i.e. a block of lines to be executed at once in the current interpreter (Python or IPython). Every script may be divided in as many cells as needed.
+Cells are separated by lines starting with:
+#%% (standard cell separator)
+# %% (standard cell separator, when file has been edited with Eclipse)
+# <codecell> (IPython notebook cell separator)
+
+You can also use this:
+# In[1]

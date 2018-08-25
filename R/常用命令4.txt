@@ -1,0 +1,100 @@
+采用上次训练完成的weights继续训练
+NNetwork <- neuralnet(formula, data, startweights = NNetwork$weights)
+
+选取第n个元素
+.parent_class:nth-child(1) { };
+.parent_class:nth-child(2) { };
+.parent_class:nth-child(3) { };
+
+.myclass:nth-of-type(1) { };
+.myclass:nth-of-type(2) { };
+.myclass:nth-of-type(3) { };
+
+nth-of-class?
+
+.a ~ .b matches the 4th and 5th list item because they:
+
+Are .b elements
+Are siblings of .a
+Appear after .a in HTML source order.
+
+--中文查找
+grepl('[\u4e00-\u9fa5]+','租赁')
+grepl('[^0-9a-zA-Z[:space:][:punct:]]','英')
+x = str_extract(sale_data_raw$booth_desc,'([\u4e00-\u9fa5]|\\d)楼')
+
+--设置语言环境为英文
+在桌面右键R图标，点击‘属性’，在快捷方式下面的目标栏里写上D:\R-3.1.2\bin\x64\Rgui.exe language=English。 再打开R的时候就是英文的UI了。
+推荐使用英文UI，英文这样很多term很多output可以直接copy来用，比如插入图片到word文档。
+
+本文来自: 人大经济论坛 R语言论坛 版，详细出处参考： http://bbs.pinggu.org/forum.php?mod=viewthread&tid=3533439&page=1
+
+--找出所有背景数据集
+data()
+
+--找出向量的子集本质上都可以用
+vector1[vector2] 来完成
+
+--循环的更好作法
+for(x in seq(x))
+rep(x,times) rep(x,each = 2) 决定了重复的图样
+
+一般的运算，R会自动跳过NULL
+但是对NA值来说，R需要指定na.rm = T
+在不同的向量中，NA的mode会不一样
+
+NULL的用途：类似 z= NULL, z = c(z,new_value),对数据框也可以
+
+subset 会自动剔除NA值 subset(x,x>5)
+而基本向量运算不会x[x>5]
+
+用which找出第一个等于1的元素的坐标 which(x==1)[1]
+
+ifelse可以嵌套： ifelse(a,b,ifelse(c,d,e))
+
+找出v[i+1]与v[i]的趋势变化 v[-1]-v[-length(v)]
+或者，直接使用diff
+
+plot(new = FALSE) 不继续画新图
+plot(d$x,d$y,pch = new_vector)
+new_vector = ifelse(d$z=="M",'x','o')
+
+c(1,2)产生浮点数，1：2产生整数
+typeof比mode更细微
+
+将向量的名称命名为NULL可以将向量名移除 names(x) = NULL
+we can use x['a'] 来引用向量中的元素
+
+c()操作偏向扁平化和降级，list是最低的结构
+
+可以让矩阵按行存储 m = matrix(c(),byrow = T),不过存储时一直是依赖列进行存储
+
+&用于向量的“与”运算
+
+R倾向于自动降维，如果要阻止降维，需要使用drop参数 m[1,,drop=FALSE] OR "["(1,,drop = FALSE)
+
+ifelse(nrow(m)==ncol(m),1,pho),返回的形式和第一个表达式的形式类似，是一个矩阵
+
+which.max()取回向量的最大值的坐标
+
+which(m==min,arr.ind = T) 表示返回一个下标
+
+you can use colname and rowname to retrieve the element like m[,"a"],m["newline",]
+
+seldom use but we can record it here: arrays = array(firsttable,secondtable,c(3,2,2))
+
+添加列表元素，直接l$a = "new" 或 l[[3]] = "new"; 删除需要将其设为NULL
+
+拼接列表也可以使用c
+
+unlist用来去列表化，将列表变为向量，并降级
+
+list can be a map, since you can always use text["name"]
+
+if you want to read or write in batch, do it. else you need a connection
+
+cat/scan writeline/readline read.table/write.table
+
+using get(变量名) 去获取变量值，这在循环时很有用 (seems eval can do the same thing?)
+
+integrate(数值积分),D来做解析微分

@@ -1,0 +1,19 @@
+The observed proportionate agreement is:
+
+{\displaystyle p_{o}={\frac {a+d}{a+b+c+d}}={\frac {20+15}{50}}=0.7} {\displaystyle p_{o}={\frac {a+d}{a+b+c+d}}={\frac {20+15}{50}}=0.7}
+To calculate pe (the probability of random agreement) we note that:
+
+Reader A said "Yes" to 25 applicants and "No" to 25 applicants. Thus reader A said "Yes" 50% of the time.
+Reader B said "Yes" to 30 applicants and "No" to 20 applicants. Thus reader B said "Yes" 60% of the time.
+So the expected probability that both would say yes at random is:
+
+{\displaystyle p_{\text{Yes}}={\frac {a+b}{a+b+c+d}}\cdot {\frac {a+c}{a+b+c+d}}=0.5*0.6=0.3} {\displaystyle p_{\text{Yes}}={\frac {a+b}{a+b+c+d}}\cdot {\frac {a+c}{a+b+c+d}}=0.5*0.6=0.3}
+Similarly:
+
+{\displaystyle p_{\text{No}}={\frac {c+d}{a+b+c+d}}\cdot {\frac {b+d}{a+b+c+d}}=0.5*0.4=0.2} {\displaystyle p_{\text{No}}={\frac {c+d}{a+b+c+d}}\cdot {\frac {b+d}{a+b+c+d}}=0.5*0.4=0.2}
+Overall random agreement probability is the probability that they agreed on either Yes or No, i.e.:
+
+{\displaystyle p_{e}=p_{\text{Yes}}+p_{\text{No}}=0.3+0.2=0.5} {\displaystyle p_{e}=p_{\text{Yes}}+p_{\text{No}}=0.3+0.2=0.5}
+So now applying our formula for Cohen's Kappa we get:
+
+{\displaystyle \kappa ={\frac {p_{o}-p_{e}}{1-p_{e}}}={\frac {0.7-0.5}{1-0.5}}=0.4\!} {\displaystyle \kappa ={\frac {p_{o}-p_{e}}{1-p_{e}}}={\frac {0.7-0.5}{1-0.5}}=0.4\!}

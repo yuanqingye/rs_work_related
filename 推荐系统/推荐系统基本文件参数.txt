@@ -1,0 +1,3 @@
+location of sunlinlin's files /home/sunlinlin/report_zuoye/report/ 
+
+cd /home/sunlinlin/report_zuoye/report/

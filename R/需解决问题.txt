@@ -1,0 +1,10 @@
+Question1:
+How to make the algorithm work with some missing not critical value or can be replaced?
+
+Question2:
+The best way to solve problem with only one type of label determined(others, we don't know)
+
+Question3:
+Need to get feel for how the features will effect the whole picture
+
+搜索有多种 ，根本不知道，知道一部分，知道全部

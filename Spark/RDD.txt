@@ -1,0 +1,30 @@
+text_RDD = sc.textFile("file:///home/cloudera/testfile1")
+
+def split_words(line):
+  return line.split()
+  
+def create_pair(word):
+  return(word,1)
+  
+pairs_RDD = text_RDD.flatMap(split_words).map(create_pair)
+
+pairs_RDD.collect()
+
+def sum_counts(a,b):
+  return a+b
+  
+wordcounts_RDD = pairs_RDD.reduceByKey(sum_counts)
+wordcounts_RDD.collect()
+
+map: apply function to each element of RDD
+
+Spark is lazy:calculate at last
+
+def lower(line):
+  return line.lower()
+lower_text_RDD = text_RDD.map(lower)
+
+flatMap(func) map then flatten output
+filter(func) keep only elements where func is true
+sample(withreplacement,fraction,seed)
+coalesce(numPartitions) reduce partitions to numPartitions

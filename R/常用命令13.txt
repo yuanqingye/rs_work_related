@@ -1,0 +1,82 @@
+Get the file from the path 
+fileName <- "C:/Users/qingye.yuan/Desktop/工作需要/工作信息/city_pinyin.txt"
+con <- file(fileName,open="r")
+line <- readLines(con)
+close(con)
+
+you can library inside the function, and it will affect global
+
+#An easy way to make an empty data.table
+rbindlist(list(0))
+
+using if/else black to set special value and skip some lines
+
+using function formula to code, think carefully
+
+using temp when debugging to store the value which is hard to get
+
+when running some programm takes a lot of time, you could settle down and do some other things.
+
+When I need to remember sth, using ##!!
+
+error handle with try
+
+some_function_that_may_fail <- function() {
+  if( runif(1) < .1 ) stop()
+  return(1)
+}
+r <- NULL
+attempt <- 1
+while( is.null(r) && attempt <= 3 ) {
+  attempt <- attempt + 1
+  print(attempt)
+  try(
+    r <- some_function_that_may_fail()
+  )
+} 
+
+merge without change order :
+join(df.2,df.1) #plyr
+setDT(df.1)[df.2, on="class"] #data.table # not work in some test
+
+set col order for a table 
+setcolorder(mydf, as.character(matches$Y))
+for data.frame:
+df = df[colorder] may be useful
+
+要求格式的语句需要提前确保格式转化
+可能会犯错的语句要有重复启动的机会
+
+定义包裹函数族
+prop.table2 <- function(f, ...) {
+   preprocess()
+  f(...)
+  proprocess()
+}
+
+source the file without stop:
+ll <- parse(file = "script.R")
+for (i in seq_along(ll)) {
+    tryCatch(eval(ll[[i]]), 
+             error = function(e) message("Oops!  ", as.character(e)))
+}
+
+hidden var in function is defined when the function is created not when the function is called
+
+#for hack inside the function when in debugging mode
+1) When in the debugger you can redefine the functions on the spot. For example, any time before getting to the point where function1 is invoked enter this into the debugger:
+function1 <- list
+Now invoking function1() actually invokes list() .
+This could alternately be done outside of f1 before invoking it. In that case we may wish to store function1 in another name first to make it easy to revert back to it.
+function1.orig <- function1
+function1 <- list
+Later we can revert function1 back by writing:
+function1 <- function1.orig
+2) For function2 you may wish to redefine it as follows where 32 is the critical value needed later.
+function2 <- function() 32
+
+#create an empty data.frame based on existing data.frame
+redstar_result = redstar_result_update[FALSE,]
+
+`<<-` 
+if the var is exist when trace back to the upper level then the var is replaced else it will create a var in global environment

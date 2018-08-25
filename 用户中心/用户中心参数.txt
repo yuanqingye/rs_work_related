@@ -1,0 +1,14 @@
+异常主规则配置：user_number_main_exception_rule
+异常子规则配置：user_number_branch_exception_rule
+异常会员信息录：user_member_unusual_record
+异常信息定时接收用户配置：tb_uc_send_message
+会员签到：user_signin
+会员任务：user_tasklist
+权益主表：rights
+权益入库记录：rights_inbound
+权益库存：rights_repertory
+礼品主表(线上、线下礼品)：gifts
+礼品入库记录：gift_inbound
+礼品库存：gifts_repertory
+权益(线上礼品)入库城市:mark_apply_city
+权益(线上礼品)入库卡券:mark_ticket

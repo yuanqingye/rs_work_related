@@ -1,0 +1,52 @@
+select datediff(to_date(concat(substr(20161129,1,4),'-',substr(20161129,5,2),'-',substr(20161129,7,2))),
+                to_date(concat(substr(20161202,1,4),'-',substr(20161202,5,2),'-',substr(20161202,7,2))))
+VSM:词袋模型+TFIDF，LDA模型，ESA模型，LSA模型，word2vec
+
+l_ip!='210.13.91.146'  and service in ('h5.pvuv','ios.pvuv','android.pvuv') and substr(u_mid,1,2)!='a_' and path='p'
+
+l_ip!="210.13.91.146" and l_province!="局域网" and service in ("h5.pvuv","ios.pvuv","android.pvuv","m.pvuv") and substr(u_mid,1,2)!="a_" and path="p"
+
+
+1 172.16.107.126 root admin@345 
+
+
+2 172.16.107.127 root admin@345 
+
+
+3 172.16.107.128 root admin@345 
+4 172.16.107.129 root admin@345 
+5 172.16.107.130 root admin@345 
+6 172.16.107.131 root admin@345 
+7 172.16.107.132 root admin@345 
+8 172.16.107.133 root dg12345# 
+
+
+9 172.16.107.134 root dg12345# 
+
+
+10 172.16.107.135 root dg12345# 
+
+
+11 172.16.107.136 root dg12345# 
+
+
+12 172.16.107.137 root dg12345# 
+13 172.16.107.138 root dg12345# 
+
+
+14 172.16.107.139 root dg12345# 
+　 
+
+
+15 172.16.112.211 root hadoop!234 
+16 172.16.112.212 root hadoop!234 
+
+
+17 172.16.112.213 root hadoop!234
+
+192.168.119.81 root hadoop81
+192.168.119.82 root hadoop82
+192.168.119.83 root hadoop83
+
+192.168.119.70-72
+root /123qwe``

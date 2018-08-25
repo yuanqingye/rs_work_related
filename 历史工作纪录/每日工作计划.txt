@@ -1,0 +1,121 @@
+﻿Do I feel happy every minute I work?
+
+每日工作计划
+12-18
+下午：
+5分钟列计划，20分钟读统计
+1.5小时重新排版周报
+1.5小时-2小时研究异常模型的错误之处
+1.5小时-2小时研究租金定价模型针对新商场的比较好处理方式
+20分钟总结
+
+12-19
+上午1.5小时租金
+中午0.4小时日语
+下午待定
+
+12月27日
+完成异常流量监测的初步模型
+
+1月2日
+完成日语和西班牙语的学习
+并没有读医术
+下午一直在做模型
+
+1月3日
+上午：检测模型问题，多做试验
+中午：日语，医疗方面
+下午：3点以前：研究，3点后，模型编写
+问题1：如何判断使用哪个模型？VEV目前效果远好于其他，原因？
+问题2：使用随机的初始分布或者某种粗糙的分布能否使得模型可以达到8成以上的 准确率
+将模型运用到自己的访问记录上
+
+VEV训练精选样本的一部分用在精选样本的另一部分上，结果：完美
+$f1
+[1] 0.9762594
+$accuracy
+[1] 0.9888829
+$specificity
+[1] 0.9985755
+$precise
+[1] 0.9952774
+$recall
+[1] 0.9579545
+
+#part has the same result as whole above
+#but with test the recall rate is down which is wanted since spec and precise both up
+
+But with VEV, W/O the test set itself the model apply on the new test set, we get the NA for the z judge
+
+according to BIC test the VEV part shows NA
+The EEI WITH Better BIC gives better results
+The VII has result, but poor
+
+2018-01-08
+1确定目前需要使用哪个模型（NB,EM） NB
+2将模型应用到以前的流量过量数据(YES) 
+3思考是否需要再加入任何变量 （先加入两个）（尝试加入umid page相关变量）
+4将模型在时间上变得普适并削减存储量（更相关，运算速度更快）(已经把辅助部分时间定在昨天前)（已经对用户属性通过时间进行关联）
+*4考虑周报深化的问题（在阅读网站分析实战）
+5咨询家金所关于消费贷款的问题（已解决）
+
+svm_cal
+glm_cal
+glmnet_cal
+nb_cal
+cart_cal
+c50_cal
+rf_cal
+
+click-number: number of http requests in a session
+HTML-to-image ratio: robots generally ignore images
+percentage of pdf/ps requests: robots will request for all of them, whereas humans selectively request a few
+percentage of 4xx error responses: robots will have this metric higher
+percentage of HTTP HEAD requests:to reduce the amount of data from a site, robots use HEAD requests
+percentage of requests with unassigned referrers
+Robots.txt file request
+standard deviation of requested page's depth : high for robots
+percentage of consecutive sequental HTTP requests : higher for human sessions (browser making requests for images/scripts contained in the page on behalf of user)
+
+思考正负样本的差距对模型的影响 有影响，正负样本减少均能导致训练准确度辨识度降低
+考虑判定异常时候，错误判定的可能性：
+检查初始训练方法为何精度不足：仅对清远不足，需考虑默认参数
+将结果使用kappa测度
+
+可视化，
+查看各个变量相关情况：已经去除相关度比较大的rate,模型检测误差变小
+如何使得模型更容易被解释，
+考虑改变训练集后的情况：已查看上海和苏州
+
+15-20分钟R复习
+1小时python（0.5最后一章，0.5复习）
+1小时检测变量
+
+下午思考租金定价模型的准确标准
+
+15到20分钟R复习
+1小时python
+做流量定时
+
+下午继续思考租金定价模型的准确标准
+
+2018-03-26
+思考为什么新用户访问深度大于老用户的问题，数据结果的正确性，如何验证？
+
+上午完成周报和上次结果的复原
+下午完成社区数据的整理
+
+房地产估价师题库
+训练记忆力
+
+查看每个月的销售量
+
+2018-04-09
+建立更完善模型，需要更完善知识
+修改周报
+思考推荐系统的改进
+
+2018-04-16
+
+2018-07-19
+Need to check the difference in the rent tomorrow, and start the new part

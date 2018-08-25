@@ -1,0 +1,169 @@
+算法：
+最好的算法永远在心中不断产生
+通过技术使自己更便捷
+算法中加入人为激励,有时会更有动力
+考虑使用卡方方式去解决变量之间线性相关问题（非线性相关问题怎么解决？）
+
+technique analysis
+fundamental analysis
+time series analysis
+statistic analysis
+
+考虑使用一部分数据集合,一部分算法,进行测试,切实有效时,再引入全部
+
+使用中间结果，不必每次都从头开始计算
+
+我们进一步使用了 Frideman 训练集对 EFG 进行测试。这个训练集中包含非线性相关项，噪音项，权重不同的线性相关项和引起多重共线性的项，基本上囊括了实际数据处理中可能出现的主要问题，而 EFG 的测试表现令人满意
+
+# the developed models are intended to support prediction ? or scientific reasoning?
+# Sensitivity Analysis: adjust a variable to see how big the predicted variable changes
+
+# Evaluate the learning process and final model
+The learning processes were compared in terms of effectiveness (average
+MSE of the final model), efficiency (total amount of time required to evaluate
+alternative architectures and determine the optimum), and reliability (subtracting from
+100, the coefficient of variation of MSE among 50 random trials of the algorithm).
+
+In this study, three important principles of model development (Gupta et al.
+2008) were considered: maximum likelihood (minimizing MSE on training data),
+consistency (generalization), and parsimony (selecting the simplest learning network,
+with equal error)
+
+1model selection
+2feature selection
+
+可以考虑先使用一个算法，再采用另一个继续
+
+adjust: when should we 
+add more samples(me:need more to reduce overfit)
+add/reduce features(me:reduce when high overfit)
+impose/dismipose regularizations(need more reg when overfit)
+
+Along with the increasing degree of poly, the overfit increasing(essentially due to the features increased)
+The training error is down, but test error first down then up, has a best fit
+The sign of underfit: train error and test error both high
+The sign of overfit: train error much smaller than test error
+
+分类重要指标：
+sensitivity = true positive/actual positive
+specificity = true negative/actual negative
+precision = true positive/predicted positive
+recall = true positive/actual positive
+
+F1 score = 2*P*R/(P+R)
+
+semi supervised learning
+one class classification(one class SVM)
+PU learning:In PU learning, two sets of examples are assumed to be available for training: the positive set {\displaystyle P} P and a mixed set {\displaystyle U} U, which is assumed to contain both positive and negative samples, but without these being labeled as such.
+I am thinking about naive baysian and EM algorithm
+
+semi supervised learning can refer to transductive learning or inductive learning. with labeled sample and unlabeled sample
+
+Adaboost:
+https://qizeresearch.wordpress.com/2013/12/05/short-example-for-adaboost/
+http://blog.csdn.net/haidao2009/article/details/7514787
+may read: https://baike.baidu.com/item/adaboost/4531273?fr=aladdin
+loop: t
+1Give the train set a weight to distribute Di = wi/sum(wi)
+2Train the weak model ht
+3Get the error by Err(t)= sum(D(i)*I(ht(xi)!=yi))
+4Get the weight of the tree a(t) = ln((1-Err(t))/Err(t))
+5Get the weight of the next tree wi(t+1) = Di(t)*exp(-a(t)*yi*ht(xi))
+loop end
+6 H(x) = sum(a*h(x))
+The different between it and gradient boost, gradient boost will have add gradient concern will this just set the weight of the sample
+
+EM:
+intuitive explanation: you have group of people with boys and girls, you want to figure out the mean of height of boys and girls 
+you need a guess parameter, then with each sample, you calculate the chance of girl/boy with that parameter; this is called the estimation step, then you use the estimation to calculate the new parameter, it would get close to the real value but may not converge to it.
+another example is with the coins, two types of coins, each has own probability of Head and Tail, you initially set a prob for them, and using that to estimate the prob of type of a coin by "HTTHT", (P1=H)^2(P1=T)^3/((P1=H)^2(P1=T)^3 + (P2=H)^2(P2=T)^3); Then using this prob to calculate the more real parameter : all type I's head/ all type I get a better M(the idea is,since we got the frequece,so we get the prob using the freq)
+
+it has some math background, to be solved tonight, ideally.
+
+PCA:http://www.360doc.com/content/13/1124/02/9482_331688889.shtml
+A matrix M times a vector is to put the vector into the space with M's row as the basis
+put all the samples with n dim,to a n*m matrix X (better to scale it, then X*X' is cov)
+after Y = P*X
+A = Y*Y' = P*X*X'*P'
+find the P to make A Diag, with cov = 0 and var arrange from max to min
+then we pick the first r rows, it gives us an smaller space with each dim independent.
+For nonlinear case, we need to using kernal PCA
+using PCA to do the scores(?)
+
+LDA
+dimention reduce with tag on the class
+maximize: w'(mu1-mu2)/w'(sigma1+sigma2)w
+calculate the character value lambda (mu1-mu2)*(mu1-mu2)'/sigma1+sigma2
+and the char vector W which made the diag matrix
+we extract first several matrix
+w'sigma1w = (w'x)*(x'w); w'x is the projection of each x onto w, so this is the square norm of the projections,represented the distance inside x
+类内散度矩阵即为特征的协方差矩阵的估计（第一行第二列即为第一个特征与第二个特征的协方差估计）
+
+ROC seems did greate job
+it has true positive rate as y(sensitivity) and false positive as the x(1-specificity)
+if you increase the threshold then you get low sensitivity and high specificity; the other way is the moving up
+the area decided the better solution(how to calculate?)
+even with bad (x.y) down the line, we could using the mirror of it(using the totally converse prediction)
+
+
+Controversy prob baysian
+when you know P(x|y) --to be more specific,you get P(ai|y),and you get P(x|y) = prod(P(ai)|y) you want to get P(y|x)
+using P(x|yi)*P(yi)/P(x) and compare them since P(x) is a constant, we could eliminate it.
+So finally we got prod(P(aj|yi))*P(yi) and compare it we got the answer
+For the continous cases, we need to calculate the mean and var of the sample
+then using that prob density function f(x,mu,sigma,yi); and using that to be p(ai|yi)
+for the laplace correction, we add 1 for those type without some feature shows up 
+
+terminology:
+posterior = prior * likelihood/evidence
+
+decision tree:
+In mind you can imagin it as a big super rectangle with many small super rectangle in it/ or partition of the space
+precut of the tree: stop to divide; post prune of the tree: make the cost of the test set down
+
+With BIC it is possible to evaluate the posibility of the model 
+
+In R the BIC formula is given by:
+2 * loglik - nparams * log(n)
+which is reverse sign of original standard formula
+so the higer the better
+
+According to the test_set, We get the model shape
+then using that shape we using the sample to train a model
+apply that model to the test set
+
+We use our own way to decide if it works 
+Even it is simple~But sometimes works
+
+study some example(may be practical,representative)
+study a theory
+apply it to more and more example to deepen the understanding
+
+pretrain the model, and then using the better model may avoid overfit
+
+SVM
+the cost function is like C(main_term) + sum(theta^2)
+So the bigger the C, the more  overfit it tend to be), we need first make sure main_term is small then try to minimum theta, then each outlier point will hurts
+we need to pick smaller C to make sure not too overfit
+
+C大，λ小，overfit，产生low bias，high variance
+C小，λ大，underfit，产生high bias，low variance
+For σ2 Part when it small cause overfit
+
+
+模拟退火算法、粒子群算法、蚁群算法、禁忌搜索等等，统称为元启发式算法（Meta-heuristic algorithms）
+
+Neural Networks are by far the most widely used technique. 
+Time Delay Neural Networks have been used in [2] for stock market trend prediction. 
+Probabilistic Neural Networks have been used in [3] to model it as a classification problem, the 2 classes being a rise or a fall in the market.
+Recurrent Neural Nets have been used in [4] for predicting the next day’s price of the stock index. Other methods that have been used to forecast the stock market include Bayesian belief networks [5], evolutionary algorithms [6] [7], classifier systems [8], and fuzzy sets [9]. 
+
+回归决策树：
+argmin(Pl*Var(Yl) + Pr*Var(Yr))
+
+某些算法可以考虑多个变量共同作用导致的结果,并不一一考虑
+
+决策树 complex parameter:
+For regression, the cp equals the decrease of "rel error". for example, the cp of Node Number 1, 0.5882099 = 1 - 0.4117901
+
+A rule of thumb is to choose the lowest level where the rel_error + xstd < xerror

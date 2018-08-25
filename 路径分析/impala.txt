@@ -1,0 +1,8 @@
+--将固定的时间格式变成timestamp
+select
+  cast(unix_timestamp(`date`, "yyyy-MM-dd;HH:mm:ss") as timestamp)
+from t1
+limit 100;
+
+--this works for impala
+split_part(string source, string delimiter, bigint n)

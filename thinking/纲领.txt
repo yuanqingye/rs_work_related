@@ -1,0 +1,7 @@
+select the feature
+think about the model with pros and cons in your mind(theoretically)
+arrange the dataset to what you wish
+deal with the missing value
+using different train/test strategy(eg:k-fold)
+tuning the parameters
+using ensemble methods.

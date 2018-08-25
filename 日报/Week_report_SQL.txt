@@ -1,0 +1,13 @@
+  select * from 
+  (select u_mid,d_model,l_city,ROW_NUMBER() OVER (
+    PARTITION BY u_mid,d_model,l_city
+    ORDER BY dt) as level from ods.ods_app_pageview_info where dt>= 20171013) t where t.level = 1
+	
+旧的错误的SQL:
+select sum(numbers) sum_num,l_city from 
+(select count(b.u_mid) numbers,firstdt,d_model,regexp_replace(l_city,"市","") l_city from
+(select f.u_mid,substr(firstonlinetime,1,10) firstdt,a.d_model,a.l_city from dl.umid_firstonlinetime f left join
+  (select distinct u_mid,d_model,l_city from ods.ods_app_pageview_info where dt>= 20171013) a
+  using(u_mid) where substr(firstonlinetime,1,10) >= '2017-10-13' 
+  and f.dt = '20171026' and l_city not in ("局域网","未知","","null") and l_city is not NULL ) b group by firstdt,d_model,l_city) tl
+  group by l_city order by sum_num desc  

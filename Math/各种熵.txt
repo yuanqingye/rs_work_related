@@ -1,0 +1,12 @@
+熵：H(X)=−∑xp(x)lnp(x)H(X)=−∑xp(x)lnp(x) 
+衡量不确定性的度量
+联合熵: H(X,Y)=−∑x,yp(x,y)lnp(x,y)H(X,Y)=−∑x,yp(x,y)lnp(x,y) 
+（X,Y）在一起时的不确定性度量
+条件熵: H(X,Y)−H(X)=−∑x,yp(x,y)lnp(y|x)H(X,Y)−H(X)=−∑x,yp(x,y)lnp(y|x) 
+X确定时，Y的不确定性度量
+在X发生是前提下，Y发生新带来的熵。
+交叉熵:H(p,q)=−∑xp(x)lnq(x)H(p,q)=−∑xp(x)lnq(x) 
+衡量p与q的相似性
+相对熵: KL(p||q)=−∑xp(x)lnq(x)p(x)KL(p||q)=−∑xp(x)lnq(x)p(x) 
+p与q不相似的度量
+KL(p||q)=−∑xp(x)lnq(x)p(x)

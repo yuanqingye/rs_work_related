@@ -1,0 +1,64 @@
+  temp = getMisplacedData(predict = TRUE)
+  mall_names = temp[[1]]
+  train_set = temp[[2]]
+  test_set = temp[[3]]
+  train_mall_names = temp[[4]]
+  #SVM part
+  ptm <- proc.time()
+  svm_result = getSVMResult()
+  ptm = proc.time() - ptm
+  #random forest part
+  ptm <- proc.time()
+  rf_result = getRandomForestResult()
+  ptm2 = proc.time() - ptm
+  #GBM part
+  ptm <- proc.time()
+  gbm_result = getGBMResult()
+  ptm3 = proc.time() - ptm
+  #Neural network part
+  ptm <- proc.time()
+  nn_result = getNeuralNetworkResult()
+  ptm4 = proc.time() - ptm
+  MSE.rf.MALLS = rf_result[[3]]
+  MSE.nn.MALLS = nn_result[[3]]
+  MSE.svm.MALLS = svm_result[[3]]
+  MSE.gbm.MALLS = gbm_result[[3]]
+  MSE.all.MALLS = cbind.data.frame(MSE.rf.MALLS,nn_perc = MSE.nn.MALLS$perc,svm_perc = MSE.svm.MALLS$perc,gbm_perc = MSE.gbm.MALLS$perc)
+  temp_median = lapply(lapply(MSE.all.MALLS.2018[,-1],abs),median)
+  temp_min = apply(abs(MSE.all.MALLS.2018[,5:8]),1,min)
+  temp_mean = lapply(lapply(MSE.all.MALLS.2018[,-1],abs),mean)
+  temp_sd = lapply(MSE.all.MALLS.2018[,-1],sd)
+  temp_min_index = apply(abs(MSE.all.MALLS.2018[,5:8]),1,which.min)
+  MSE.all.MALLS.2018 = cbind.data.frame(MSE.all.MALLS.2018,temp_min,temp_min_index)
+  rentind = which(names(train_set) %in% c("rent"))
+  rf.model = rf_result_2018[[1]]
+  rf.train.result= predict(rf.model,train_set[-rentind])
+  svm.model = svm_result_2018[[1]]
+  svm.train.result = predict(svm.model,train_set[-rentind])
+  gbm.model = gbm_result_2018[[1]]
+  gbm.train.result = predict(gbm.model,train_set,n.trees = 100000)
+  nn.model = nn_result_2018[[1]]
+  maxs <- apply(train_set, 2, max)
+  mins <- apply(train_set, 2, min)
+  train.scaled = as.data.frame(scale(train_set, center = mins, scale = maxs - mins))
+  max_rent = maxs["rent"]
+  min_rent = mins["rent"]
+  nn.train.result = compute(nn.model,train.scaled[,-rentind])
+  nn.train.result = nn.train.result$net.result*(max_rent-min_rent)+min_rent
+  train_view = cbind.data.frame(mall_names = train_mall_names,train_set[rentind],rf_rent = rf.train.result,nn_rent = nn.train.result,svm_rent = svm.train.result,gbm_rent = gbm.train.result)
+  train_view = data.table(train_view)
+  train_view_focus = train_view[,lapply(.SD[1:.N],sum),by = "mall_names"]
+  train_view_focus[,`:=`(rf_diff=abs(rf_rent-rent)/rent,nn_diff=abs(nn_rent-rent)/rent,svm_diff=abs(svm_rent-rent)/rent,gbm_diff=abs(gbm_rent-rent)/rent)]
+  new_row = data.table(mall_names = "昆明广福路商场")
+  train_view_focus = rbind.fill(train_view_focus[1:23,],new_row,train_view_focus[24:nrow(train_view_focus),])
+  temp_min_index_train = apply(abs(train_view_focus[,7:10]),1,which.min)
+  View(cbind(train_view_focus$mall_names,temp_min_index_train,temp_min_index))
+  temp = MSE.all.MALLS.2018[,5:8]
+  temp = as.matrix(temp)
+  temp_decision = temp[cbind(1:nrow(temp), as.numeric(temp_min_index_train))]
+  MSE.all.MALLS.2018 = cbind.data.frame(MSE.all.MALLS.2018,temp_min_index_train,temp_decision)
+  
+  家具展会：17601209317
+  
+ cpi = read_xlsx("~/data/cpi.xlsx",col_names = FALSE)
+ colnames(cpi) [[8]]= "DATE_ID"

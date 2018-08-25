@@ -1,0 +1,86 @@
+恢复某个已修改的文件（撤销未提交的修改）：
+$ git checkout file-name
+
+例如：git checkout src/com/Android/.../xxx.Java
+
+比如修改的都是java文件，不必一个个撤销，可以使用
+
+$ git checkout *.java
+
+撤销所有修改
+
+$ git checkout .
+
+git fetch 把远程信息拉来但不merge
+git fetch origin master:tmp
+git diff tmp 
+git merge tmp
+
+git pull did everything(may be need origin master)
+
+1 git clone http://xxxxxxxxxxxxx.git (this is like download)
+2 move everything from that folder to the folder you want to do work 
+3 change something
+4 git add . (to put something into stage), before staging, you can always use git checkout . to reset; if it is a remove ,then git add -u is needed,($ git reset [file] 
+unstage the change)
+5 git commit -m "information about"
+6 if you want to merge the commit to the main branch, you need to git merge
+7 you can then git push to the remote(you can add remote rep by )
+8 if you don't have a remote place to communicate, then try  "git remote add origin <server>" (in windows version,you can do this on GUI)
+
+Further details:
+git branch develop(To create a new branch)
+git checkout develop
+
+回归历史版本
+git reset --hard commit_id
+
+察看历史版本
+git log
+
+察看包括未来的所有版本
+git reflog
+
+去git化
+cd C:\Users\qingye.yuan\Documents\R_Projects\EM\Rfile
+rm -rf .git
+
+git rm will remove the git history and also the files
+
+git add -A stages All
+git add . stages new and modified, without deleted
+git add -u stages modified and deleted, without new
+
+git stash
+https://git-scm.com/book/zh/v1/Git-%E5%B7%A5%E5%85%B7-%E5%82%A8%E8%97%8F%EF%BC%88Stashing%EF%BC%89
+before switch to another branch
+1git stash(put uncommit changes in stack)
+2git checkout targetbranch
+3git merge(if needed) sourcebranch, merge the comitted changes back to the target branch
+4git stash pop(apply everything inside the stash and delete it, and your target branch's status should be almost identical as your operation and you back in main branch!)
+this step can be replaced by git stash apply     then     git stash drop stash@{0}
+git stash list(list everything inside stack)
+
+git reset --hard. discard the local changes
+
+if head always point to the committed snap shot
+
+git push origin master      failed, then set the default memory: git config --global http.postBuffer 100M
+This may work : git config http.postBuffer 524288000
+
+This looks similar to How do I get github to default to ssh and not https for new repositories. Probably it's worth trying to switch from http protocol to ssh:
+
+git in ssh
+$ git remote add origin git@github.com:username/project.git
+
+-- git remote add new repository
+git remote add upstream(name) https://github.com/yuanqingye/new_project.com
+-- git remote set new url destiny for your current url
+git remote set-url origin https https://github.com/yuanqingye/new_name_project.com
+
+-- pull from other repository
+git pull origin branch_name --rebase
+
+--change the default remote push destiny
+git push -u <remote_name> <local_branch_name>
+git branch --set-upstream-to myfork/master

@@ -1,0 +1,12 @@
+https://www.cnblogs.com/hnrainll/archive/2011/04/29/2032662.html
+打开多个文件：
+1.vim还没有启动的时候：
+在终端里输入 
+vim file1 file2 ... filen便可以打开所有想要打开的文件
+2.vim已经启动
+输入
+:open file
+可以再打开一个文件，并且此时vim里会显示出file文件的内容。
+
+:files
+列出目前所有打开的文件

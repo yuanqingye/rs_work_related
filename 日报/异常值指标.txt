@@ -1,0 +1,25 @@
+IP 会非常集中
+select count(*) numbers,g.l_ip from
+(select c.channel,substr(c.umid_firstonlinetime,1,10) firstdt,a.* from dl.dl_channel_umid_openid c left join 
+(select * from 
+  (select *,ROW_NUMBER() OVER (
+    PARTITION BY u_mid,l_city
+    ORDER BY dt) as level from ods.ods_app_pageview_info where dt>= 20171111) t where t.level = 1) a
+  using(u_mid) where substr(c.umid_firstonlinetime,1,10) >= '2017-11-11' and c.dt = 20171112 and l_city in ("泉州","泉州市")) g
+group by g.l_ip
+
+时间会比较集中
+
+机型比较集中
+
+没有手机号
+select count(*) numbers,g.u_phone from
+(select c.channel,substr(c.umid_firstonlinetime,1,10) firstdt,a.* from dl.dl_channel_umid_openid c left join 
+(select * from 
+  (select *,ROW_NUMBER() OVER (
+    PARTITION BY u_mid,l_city
+    ORDER BY dt) as level from ods.ods_app_pageview_info where dt>= 20171111) t where t.level = 1) a
+  using(u_mid) where substr(c.umid_firstonlinetime,1,10) >= '2017-11-11' and c.dt = 20171112 and l_city in ("泉州","泉州市")) g
+group by g.u_phone
+
+同一个u_id(open_id) 下有很多个设备号

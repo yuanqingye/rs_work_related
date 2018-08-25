@@ -1,0 +1,86 @@
+--check if there is a demo
+demo(package = "rvest")
+demo("tripadvisor", package = "rvest", ask = TRUE)
+
+--rmarkdown
+<img src="path/to/your/image" /> and markdown is ![title](path/to/your/image).
+
+open an issue in github to ask questions
+https://wenku.baidu.com/view/684d96d2cf84b9d528ea7aeb.html
+
+如何让R每次打开自己加载一些函数
+第一步：安装目录找到Rprofile.site这个文件，我的是在“D:\R\etc”这个目录； 
+第二步：用文本文件打开Rprofile.site，配置文件里按照R语言自定义函数的格式自定义一个函数保存即可。
+
+makeLine(p, interval=10000, r=6378137, sp=FALSE)
+平滑两点在投影上的曲线
+
+插入到第十一行
+existingDF = rbind(existingDF[1:10,],newrow,existingDF[-(1:10),])
+
+score <- c('A', 'B', 'A', 'C', 'B')
+score1 <- ordered(score, levels = c('C', 'B', 'A')); score1 #有序因子
+使用cut也可以创建因子
+col1 <- factor(colour, levels = c('G', 'R', 'Y'), labels = c('Green', 'Red', 'Yellow'))
+若因子需要有序，比如差，一般，好，很好，非常好，则可使用order参数：order=TRUE。
+例如：
+qulity<-c('good','common','good','better','excellent')
+q<-factor(qulity,levels=c('bad','good','common','better','excellent'),
+ labels=c('bad','good','common','better','excellent'),order=TRUE)
+ 
+#直接将天数变为日期
+as.Date(17293,origin = "1970-01-01")
+
+.Machine$double.eps #机器误差
+
+So we could do the proxy for R
+since the get request can be auto processed by proxy while post request can not
+so this time through post request we could do by 
+proxy_url <- "http://127.0.0.1:61387/"
+Sys.setenv(http_proxy = proxy_url, https_proxy = proxy_url, ftp_proxy = proxy_url)
+
+google_places(key = key, search_string = URLencode(iconv("北海公园",from = "GBK", to = "UTF-8")),place_type = "subway_station")
+中文想使用API一般必须编码
+
+> Hi! 
+> Are there vignettes or a general description of package rgeos? 
+> I've browsed the project in rForge and http://trac.osgeo.org/geos/ but 
+> can not find a general 
+> description. It's hard to get the general view from the individual 
+> help page of each function. 
+
+No, no vignette available, the best available guide at the root is from 
+JTS: 
+
+http://www.vividsolutions.com/jts/bin/JTS%20Technical%20Specs.pdf
+
+which was used in writing rgeos. This is on TODO lists, but not at the 
+top, sorry; contributions gratefully received! 
+
+#解决分列的好办法
+setDT(before)[, paste0("type", 1:2) := tstrsplit(type, "_and_", type.convert = TRUE, fixed = TRUE)]
+str_split_fix(col,":",n)
+
+#replace empty string to another string or NA
+gsub(string,"^$","new_string")
+string[string == ""] = NA
+
+as.numeric(difftime(as.Date("2003-04-05"), as.Date("2001-01-01"),unit="weeks"))/52.25
+
+--display tables in rmarkdown
+kable()
+
+--display pics in rmarkdown
+knitr::include_graphics()
+![]()
+
+--rvest
+If you prefer, you can use xpath selectors instead of css: html_nodes(doc, xpath = "//table//td")).
+
+Extract the tag names with html_tag(), text with html_text(), a single attribute with html_attr() or all attributes with html_attrs().
+
+Detect and repair text encoding problems with guess_encoding() and repair_encoding().
+
+Navigate around a website as if you’re in a browser with html_session(), jump_to(), follow_link(), back(), and forward(). Extract, modify and submit forms with html_form(), set_values() and submit_form(). (This is still a work in progress, so I’d love your feedback.)
+
+To see these functions in action, check out package demos with demo(package = "rvest").

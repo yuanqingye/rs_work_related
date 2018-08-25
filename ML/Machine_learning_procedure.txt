@@ -1,0 +1,22 @@
+Machine Learning
+Variance: measures the extent to which the solutions for individual data sets vary around their average, hence this measures the extent to which the function f(x) is sensitive to theparticular choice of data set.(normally it is good, but sensitive to specific training set)
+Bias: represents the extent to which the average prediction over all data sets differs from the desired regression function.(the model can't fit the ideal model)
+
+problem to consider
+part one initiative
+a.choose a learning model
+b.consider the proper feature
+c.consider the proper training example(some time it is hard to make a proper,accurate and representive training set)
+
+part two adjust
+If the model is not complicated enough to reduce bias(under fit), we can not using more training example to increase its performance
+so the expected result is t(x), then the result should be like |f(x)-E(f(x))|+|E(f(x))-t(x)|;the first term is Variance, the second is Bias
+if new model will increase the error on cv and reduce the error on train, then we call it is begin to overfit
+underfit:both training and cv error high, overfit:training error low, but cv error high, in other words Jcv >> Jtrain (A straight down curve and a V curve)
+a.check the importance and corralation of the features
+b.increase the training sample(when effective? increasing training sample makes higher training error but less cv error(形状像机器猫里的缩小器), small margin between them is the appearance and the essential should be high bias right now
+at this momemnt increasing train set not work(under fit),but for big gap(表象,inside is suffering high variance now),you can put more training sample in and make better prediction,because we have like
+more curve to do the prediction)
+c.increase/decrease feature
+d.increase/decrease regularizaion(which will make some feature less important)
+e.May be there will be some better method

@@ -1,0 +1,11 @@
+当merge string with numeric, factor with string, 是否一定会得到有效的结果(data.table, dataframe)
+
+need to practice input and output part incase for the production environment
+
+check out how the order works
+
+备份的学问
+
+rpart rel error : 
+for classification : tree error/ root error
+for regression: 1-r^2 determination coefficient(SSE/SSOT)

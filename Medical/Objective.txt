@@ -1,0 +1,6 @@
+1 understand the benefit,problem and attributes of the current system
+2 get sense of how the big data can play a role in it(appreciate potential role of health infomatics to address it)
+3 be familiar with the standard for data and data interoperation
+4 know how the medicare provider using and adopting EHR and incentives
+5 recognizing the key challenges in deploying health infomatics and how analytic tools can solve this problem
+6 realize how big data and its analysis can potentially transform healthcare field

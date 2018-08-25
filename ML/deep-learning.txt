@@ -1,0 +1,26 @@
+ 深度学习笔记(Important Research)
+变量缺失后的预测（深概率模型）
+但是计算机程序仅需要学习一个描述联合概率分布的函数。参见 Goodfellow et al. (2013d) 了解以这种方式将深度概率模型应用于这类任务的示例。
+ 
+ 转录
+ 深度学习是现代语音识别系统的重要组成部分，被各大公司广泛使用，包括微
+软，IBM 和谷歌 (Hinton et al., 2012b)。
+
+结构化输出
+在为图片添加描述的任务中，计算机程序观察到一幅图，输出描述这幅图的自然语言句子 (Kiros et al., 2014a,b; Mao et al.,
+2014; Vinyals et al., 2015b; Donahue et al., 2014; Karpathy and Li, 2015; Fang
+et al., 2015; Xu et al., 2015)。
+深度学习可用于标注航拍照片中的道路位置 (Mnih and Hinton, 2010)
+ 
+异常检测
+ 参考 Chandola et al. (2009) 了解欺诈检测方法
+ 
+自动合成和采样
+ 例如，视频游戏可以自动生成大型物体或风景的纹理，而不是让艺术家手动标记每个像素 (Luo et al., 2013)
+ 
+多实例学习
+ 参考 Kotzias et al. (2015) 了解最近深度模型进行多实例学习的示例。
+ 
+强化学习
+ Sutton and Barto (1998) 或 Bertsekas
+and Tsitsiklis (1996) 了解强化学习相关知识，Mnih et al. (2013) 介绍了强化学习方向的深度学习方法。

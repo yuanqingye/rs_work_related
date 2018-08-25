@@ -1,0 +1,98 @@
+察看运行效率/时间
+system.time 
+1.向量化处理和预设数据库结构
+循环运算前，记得预先设置好数据结构和输出变量的长度和类型，千万别在循环过程中渐进性地增加数据长度。
+# after vectorization and pre-allocation
+output <- character (nrow(df)) # initialize output vector
+system.time({
+  for (i in 1:nrow(df)) {
+    if ((df[i, 'col1'] + df[i, 'col2'] + df[i, 'col3'] + df[i, 'col4']) > 4) {
+      output[i] <- "greater_than_4"
+    } else {
+      output[i] <- "lesser_than_4"
+    }
+  }
+df$output})
+2.将条件语句的判断条件移至循环外
+将条件判断语句移至循环外可以提升代码的运算速度，接下来本文将利用包含100,000行数据至1,000,000行数据的数据集进行测试：
+# after vectorization and pre-allocation, taking the condition checking outside the loop.
+output <- character (nrow(df))
+condition <- (dfcol1+dfcol2 + dfcol3+dfcol4) > 4  # condition check outside the loop
+system.time({
+  for (i in 1:nrow(df)) {
+    if (condition[i]) {
+      output[i] <- "greater_than_4"
+    } else {
+      output[i] <- "lesser_than_4"
+    }
+  }
+  df$output <- output
+})
+3.只在条件语句为真时执行循环过程（预先赋值）
+另一种优化方法是预先将输出变量赋值为条件语句不满足时的取值，然后只在条件语句为真时执行循环过程。此时，运算速度的提升程度取决于条件状态中真值的比例。
+4.尽可能地使用 ifelse()语句
+利用ifelse()语句可以使你的代码更加简便。ifelse()的句法格式类似于if()函数，但其运算速度却有了巨大的提升。即使是在没有预设数据结构且没有简化条件语句的情况下，其运算效率仍高于上述的两种方法。
+system.time({
+  output <- ifelse ((dfcol1+dfcol2 + dfcol3+dfcol4) > 4, "greater_than_4", "lesser_than_4")
+  df$output <- output
+})
+5.使用 which()语句
+利用which()语句来筛选数据集，我们可以达到Rcpp三分之一的运算速率。
+6.利用apply族函数来替代for循环语句
+本部分将利用apply()函数来计算上文所提到的案例，并将其与向量化的循环语句进行对比。该方法的运算效率优于原始方法，但劣于ifelse()和将条件语句置于循环外端的方法。该方法非常有用，但是当你面对复杂的情形时，你需要灵活运用该函数。
+7.利用compiler包中的字节码编译函数cmpfun()
+这可能不是说明字节码编译有效性的最好例子，但是对于更复杂的函数而言，字节码编译将会表现地十分优异，因此我们应当了解下该函数。
+# byte code compilation
+library(compiler)
+myFuncCmp <- cmpfun(myfunc)
+system.time({
+  output <- apply(df[, c (1:4)], 1, FUN=myFuncCmp)
+})
+8.利用Rcpp
+截至目前，我们已经测试了好几种提升运算效率的方法，其中最佳的方法是利用ifelse()函数。如果我们将数据量增大十倍，运算效率将会变成啥样的呢？接下来我们将利用Rcpp来实现该运算过程，并将其与ifelse()进行比较。
+library(Rcpp)
+sourceCpp("MyFunc.cpp")
+system.time (output <- myFunc(df)) # see Rcpp function below
+复制代码
+
+下面是利用C++语言编写的函数代码，将其保存为“MyFunc.cpp”并利用sourceCpp进行调用。
+// Source for MyFunc.cpp
+#include 
+using namespace Rcpp;
+// [[Rcpp::export]]
+CharacterVector myFunc(DataFrame x) {
+  NumericVector col1 = as(x["col1"]);
+  NumericVector col2 = as(x["col2"]);
+  NumericVector col3 = as(x["col3"]);
+  NumericVector col4 = as(x["col4"]);
+  int n = col1.size();
+  CharacterVector out(n);
+  for (int i=0; i 4){
+      out[i] = "greater_than_4";
+    } else {
+      out[i] = "lesser_than_4";
+    }
+  }
+  return out;
+}
+library(foreach)
+library(doSNOW)
+cl <- makeCluster(4, type="SOCK") # for 4 cores machine
+registerDoSNOW (cl)
+condition <- (dfcol1+dfcol2 + dfcol3+dfcol4) > 4
+# parallelization with vectorization
+system.time({
+  output <- foreach(i = 1:nrow(df), .combine=c) %dopar% {
+    if (condition[i]) {
+      return("greater_than_4")
+    } else {
+      return("lesser_than_4")
+    }
+  }
+})
+
+df$output <- output
+10.尽早地移除变量并恢复内存容量
+在进行冗长的循环计算前，尽早地将不需要的变量移除掉。在每次循环迭代运算结束时利用gc()函数恢复内存也可以提升运算速率。
+11.利用内存较小的数据结构
+data.table()是一个很好的例子，因为它可以减少数据的内存，这有助于加快运算速率。

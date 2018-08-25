@@ -1,0 +1,124 @@
+library(readr)
+guess_encoding("test_table2", n_max = 1000)
+R 数据框使用GBK,但是普通向量却是utf-8
+iconvlist()这个方法可以显示R能接受的所有编码方式
+
+\\s表示' ',\n \r \t等
+
+R在windows系统中默认会使用GBK进行读取和写入
+R在linux系统中默认会使用UTF-8进行读取和写入
+如果在当前编码下无法解码，则会使用ANSI进行解读
+
+Character classes
+Character classes allows to – surprise! – specify entire classes of characters, such as numbers, letters, etc. There are two flavors of character classes, one uses [: and :] around a predefined name inside square brackets and the other uses \ and a special character. They are sometimes interchangeable.
+
+[:digit:] or \d: digits, 0 1 2 3 4 5 6 7 8 9, equivalent to [0-9].
+\D: non-digits, equivalent to [^0-9].
+[:lower:]: lower-case letters, equivalent to [a-z].
+[:upper:]: upper-case letters, equivalent to [A-Z].
+[:alpha:]: alphabetic characters, equivalent to [[:lower:][:upper:]] or [A-z].
+[:alnum:]: alphanumeric characters, equivalent to [[:alpha:][:digit:]] or [A-z0-9].
+\w: word characters, equivalent to [[:alnum:]_] or [A-z0-9_].
+\W: not word, equivalent to [^A-z0-9_].
+[:xdigit:]: hexadecimal digits (base 16), 0 1 2 3 4 5 6 7 8 9 A B C D E F a b c d e f, equivalent to  [0-9A-Fa-f].
+[:blank:]: blank characters, i.e. space and tab.
+[:space:]: space characters: tab, newline, vertical tab, form feed, carriage return, space.
+\s: space, ` `.
+\S: not space.
+[:punct:]: punctuation characters, ! " # $ % & ’ ( ) * + , - . / : ; < = > ? @ [  ] ^ _ ` { | } ~.
+[:graph:]: graphical (human readable) characters: equivalent to [[:alnum:][:punct:]].
+[:print:]: printable characters, equivalent to [[:alnum:][:punct:]\\s].
+[:cntrl:]: control characters, like \n or \r, [\x00-\x1F\x7F]
+
+str_dect using icu, which is quite similar to perl standard
+Originally, R use POSIX extended regular expressions (default)
+>x <- c("abc", "def", "cba a", "aa")
+> m <- regexpr("a+", x, perl=TRUE)
+> regmatches(x, m)
+
+you can remove name by characters
+
+如果你不想使用lapply而作用于整个数据框,则需要将数据框转化为矩阵或点阵的形式，因为他们本质是向量，能被向量化的函数处理
+
+举例2：表达式 "(\w)\1{4,}" 在匹配 "aa bbbb abcdefg ccccc 111121111 999999999" 时，匹配结果是：成功；匹配到的内容是 "ccccc"。
+再次匹配下一个时，将得到 999999999。这个表达式要求 "\w" 范围的字符至少重复5次， 注意与 "\w{5,}" 之间的区别。
+
+> x <- c("abc", "def", "cba a", "aa")
+> m <- gregexpr("a+", x, perl=TRUE)
+> regmatches(x, m) <- list(c("one"), character(0), c("two", "three"), c("four"))
+> x
+[1]  "onebc"       "def"         "cbtwo three" "four"
+
+直接使用网络上的代码
+library(devtools)
+source_url('https://gist.githubusercontent.com/fawda123/7471137/raw/466c1474d0a505ff044412703516c34f1a4684a5/nnet_plot_update.r')
+plot.nnet(nnet)
+
+‘regmatches’ for extracting matched substrings based on the results of ‘regexpr’, ‘gregexpr’ and ‘regexec’.
+So this will work, and is fairly simple:
+txt <- "aaa12xxx"
+regmatches(txt,regexpr("[0-9]+",txt))
+
+library(swirl) 使用R学习R
+
+--计算基本误差估计
+library(DMwR)
+regr.eval(actuals, predicteds)
+"mape": sum(|(t_i - p_i) / t_i|)/N
+
+--从公式中去除不需要的部分
+rad ~ . - medv
+
+局部包含所有信息，局部全能性
+
+--对于R中...参数的处理
+ paste3 <- function(...,sep=", ") {
+     L <- list(...)
+     L <- lapply(L,function(x) {x[is.na(x)] <- ""; x})
+     ret <-gsub(paste0("(^",sep,"|",sep,"$)"),"",
+                 gsub(paste0(sep,sep),sep,
+                      do.call(paste,c(L,list(sep=sep)))))
+     is.na(ret) <- ret==""
+     ret
+     }
+ val<- paste3(c("a","b", "c", NA), c("A","B", NA, NA))
+ val
+ 
+ --察看R的运行效率
+ microbenchmark
+dt<-data.table(id=sample(letters,1000000,T),var=rnorm(1000000))
+df<-data.frame(id=sample(letters,1000000,T),var=rnorm(1000000))
+library(microbenchmark)
+> microbenchmark(dt[ id == "a"], df[ df$id == "a",])
+Unit: milliseconds
+               expr       min        lq    median        uq       max neval
+      dt[id == "a"]  24.42193  25.74296  26.00996  26.35778  27.36355   100
+ df[df$id == "a", ] 138.17500 146.46729 147.38646 149.06766 154.10051   100
+ 
+ --画出已经有的图
+ img <- readPNG("~/Rimage/sunburstPlot.png")
+ grid.raster(img)
+ 
+Running Shiny Applications
+
+It's possible to run Shiny applications within the Viewer pane by using the launch.browser parameter of the Shiny runApp function. Note however that this will only work with the shiny package version 0.8 or later and the httpuv package version 1.2 or later. To install the latest versions of these packages:
+install.packages("httpuv")
+install.packages("shiny")
+Once you've ensured that you are running the latest versions of these packages you can run a Shiny application within the Viewer pane with code like this:
+runApp("MyAppDir", launch.browser = rstudioapi::viewer)
+
+R Graphics: Device 2 (ACTIVE)
+
+dev.new() will open a new device
+
+dev.cur returns a length-one named integer vector giving the number and name of the active device, or 1, the null device, if none is active.
+
+dev.list returns the numbers of all open devices, except device 1, the null device. This is a numeric vector with a names attribute giving the device names, or NULL is there is no open device.
+
+dev.next and dev.prev return the number and name of the next / previous device in the list of devices. This will be the null device if and only if there are no open devices.
+
+dev.off returns the number and name of the new active device (after the specified device has been shut down).
+
+dev.set returns the number and name of the new active device.
+
+dev.new returns the return value of the device opened, usually invisible NULL.

@@ -1,0 +1,48 @@
+--建立字典表
+"CREATE TABLE test.path_dict
+AS
+SELECT DISTINCT split(b.value,' ')[0] AS path, 
+split(c.value,' ')[0] AS p_domain,
+split(d.value,' ')[0] AS p_channel,
+a.page_mark,
+trim(a.page_name_en) AS p_type,
+a.p_item,a.page_name_zh as page_name
+FROM dl.dl_data_point_rule_t_rule_dt a 
+LEFT JOIN dl.dl_data_point_rule_t_code_dt b 
+ON a.path_type_value=b.id AND b.status=1 
+LEFT JOIN dl.dl_data_point_rule_t_code_dt c
+ON a.p_domain_type_value=c.id AND c.status=1 
+LEFT JOIN dl.dl_data_point_rule_t_code_dt d 
+ON a.p_channel_type_value=d.id AND d.status=1 
+WHERE a.status=1 -- AND split(b.value,' ')[0] in ('f','p')
+ORDER BY path,p_domain,p_channel,p_type"
+
+CREATE TABLE test.path_dict
+AS
+SELECT DISTINCT split(b.value,' ')[0] AS path, 
+split(c.value,' ')[0] AS p_domain,
+split(d.value,' ')[0] AS p_channel,
+a.page_mark,
+regexp_extract(a.page_name_en,'[a-z\.A-Z]+',0) AS p_type,
+a.p_item,a.page_name_zh as page_name
+FROM dl.dl_data_point_rule_t_rule_dt a 
+LEFT JOIN dl.dl_data_point_rule_t_code_dt b 
+ON a.path_type_value=b.id AND b.status=1 
+LEFT JOIN dl.dl_data_point_rule_t_code_dt c
+ON a.p_domain_type_value=c.id AND c.status=1 
+LEFT JOIN dl.dl_data_point_rule_t_code_dt d 
+ON a.p_channel_type_value=d.id AND d.status=1 
+WHERE a.status=1 -- AND split(b.value,' ')[0] in ('f','p')
+ORDER BY path,p_domain,p_channel,p_type
+
+--提取数据
+select page_name,p.p_type,p.path,p.p_item,p.p_channel,dt,app_v,service,p_stay_time,p_live_time,d_os,ts,p_url,page_mark,u_mid from ods.ods_app_pageview_info p inner join test.path_dict d on p.p_type = d.p_type and p.page = d.page_mark and p.path = d.path and p.p_item = d.p_item where p.app_v in ('2.0.4','2.0.5','2.0.6') and p.p_domain = 'mmall.com' and (p.p_type like '%user' or page_name like '%中心%' or p.p_type like '%.uc.%') and dt between 20170601 and 20170604"
+
+--分位提取数据
+select * from (select d.page_name,p.system_time,p.path,p.service,p.ts,p.p_domain,p.p_channel,p.p_type,p.p_item,p.p_title,p.u_id,p.u_mid,p.u_guid,p.l_ip,p.l_city 
+from ods.ods_app_pageview_info p inner join test.path_dict d on p.p_type = d.p_type and p.page = d.page_mark and p.path = d.path 
+and p.p_item = d.p_item and l_ip!='210.13.91.146' and p.service in ('h5.pvuv','ios.pvuv','android.pvuv') and substr(p.u_mid,1,2)!='a_' and p.path='p' and l_city!='测试' and p.p_domain='mmall.com'
+and p.p_type not in ('page.closedown','page.wakeup','page.activate.main')
+and dt=20170501) t1,(select percentile(cast(ts as bigint),0) quarter0,percentile(cast(ts as bigint),0.25) quarter1,percentile(cast(ts as bigint),0.5) quarter2,percentile(cast(ts as bigint),0.75) quarter3,percentile(cast(ts as bigint),1) quarter4 from ods.ods_app_pageview_info i where i.path='p'
+ and i.dt = 20170501) t2                                      
+where cast(t1.ts as bigint)>= quarter0 and cast(t1.ts as bigint)<quarter1

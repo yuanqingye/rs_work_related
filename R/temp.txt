@@ -1,0 +1,40 @@
+https://meikailong.maps.arcgis.com/home/organization.html
+
+GIS 10.4.1
+安装说明：https://malagis.com/arcgis-desktop-10-4-1-full-installation-tutorial.html
+链接: https://pan.baidu.com/s/1pLG05KJ
+密码: y4bm
+解压密码：malagis.com
+
+韩国代理：121.152.253.147
+
+3-16美国代理：68.192.253.122
+本机自然服务：58.246.174.226
+本地网址：10.11.29.188
+1
+46.59306
+125.1281
+APPROXIMATE
+46.60072
+125.1441
+46.58539
+125.1120
+2
+46.58944
+125.1377
+GEOMETRIC_CENTER
+46.59079
+125.1391
+46.58810
+125.1364
+
+geocode_result = rbindlist(commerce_cord_ch[[1]])
+View(geocode_result)
+geocode_result2 = rbindlist(commerce_cord_ch[[2]])
+geocode_result = rbind(geocode_result,geocode_result2)
+View(geocode_result)
+rm(geocode_result2)
+
+老虎出更
+
+当时德甲长期排在俱乐部积分榜第一的位置，但是碰上英超就出局，门兴73年联盟杯决赛输了一次，然后77年欧冠决赛输一次，78年欧冠半决赛又输过一次，三次碰面，全败。完了77年欧洲超级杯，利物浦主场干脆打了汉堡一个6比0.。。79年欧冠新贵诺丁汉森林半决赛淘汰科隆，80年欧冠诺丁汉森林先是8强淘汰柏林，决赛诺丁汉森林决赛又战胜汉堡成功卫冕，81年欧冠半决赛利物浦客场进球多淘汰拜仁，81年半决赛伊普斯维奇战胜科隆，82年欧冠决赛阿斯顿维拉爆冷击败拜仁，85年优胜者杯半决赛埃弗顿逆转战胜拜仁。。基本上除了84年的欧冠冠军汉堡成功躲开英超球队夺冠外，其他年份只要碰到英超球队就出局

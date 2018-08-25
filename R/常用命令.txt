@@ -1,0 +1,197 @@
+初始设置
+[1] "LC_COLLATE=Chinese (Simplified)_People's Republic of China.936;LC_CTYPE=English_United Kingdom.1252;LC_MONETARY=Chinese (Simplified)_People's Republic of China.936;LC_NUMERIC=C;LC_TIME=Chinese (Simplified)_People's Republic of China.936"
+
+Please remember you are using:  R version 3.3.3 (2017-03-06)
+
+--R .RData will be loaded by default
+you can save with other names if you don't want it be opened by default
+if you want to save manually and load manually, try save('the path you want to save'),load("the path you want to load") for example:load(".RData")
+
+--导入命令历史
+loadhistory
+
+chooseCRANmirror()
+help(package="程序包名")
+
+install.packages("RJSONIO", repos = "http://www.omegahat.org/R", type="source")
+you can install directly from a github repository address. So if you want the package at https://github.com/twitter/AnomalyDetection:
+library(devtools)
+install_github("twitter/AnomalyDetection")
+-- install_github need library(devtools) first
+
+-- install from github easy way
+githubinstall包提供了一种类似于install.packages()的方式，只需包名即可安装R包。
+#install.packages('githubinstall') #已发布至CRAN
+library(githubinstall)
+githubinstall('AnomalyDetection')
+
+--install old version(by default, it always install the latest packages from the repo)
+install.packages("http://cran.r-project.org/src/contrib/Archive/RNetLogo/RNetLogo_0.9-6.tar.gz", repo=NULL, type="source")
+
+--install from other website
+install.packages("RJSONIO", repos = "http://www.omegahat.org/R", type="source")
+
+--install in linux
+R CMD INSTALL RJSONIO_0.2-3.tar.gz
+--list installed package 找出已安装的包
+(.packages())
+install.packages("xlsx", repos="http://cran.wustl.edu")   ( 当我们无法直接安装时使用)
+install.packages('package_name', dependencies=TRUE, repos='http://cran.rstudio.com/')
+or permenantly
+options(repos='http://cran.rstudio.com/')
+
+可以尝试这个
+${R_HOME}/etc/Rprofile.site这个文件中配置如下参数
+local({r <- getOption("repos")
+       r["CRAN"] <- "http://mirror.bjtu.edu.cn/cran/"
+       options(repos=r)})
+
+remove.packages(c("pkg1","pkg2"),lib = file.path("path", "to", "library")) 删除包
+
+installed.packages()[,c('Package','Version','LibPath')] 察看安装的所有包的版本等
+help(package='xlsx') 察看包内具有哪些函数？
+
+--install locally
+install.packages(path_to_file, repos = NULL, type="source")
+Where path_to_file would represent the full path and file name:
+
+On Windows it will look something like this: "C:\\RJSONIO_0.2-3.tar.gz".
+On UNIX it will look like this: "/home/blah/RJSONIO_0.2-3.tar.gz".
+
+--找出所有可用包
+package_list = available.packages()
+--察看已安装的包
+library()
+--找出加载的包
+search()
+loaded_packages()
+--察看某包版本
+packageVersion("snow")
+--察看加载包，加载空间等等
+loaded_packages()
+
+--解除包的加载
+detach("package:vegan", unload=TRUE)
+unloadNamespace("sqldf") ##还未试验过
+--快速读取数据
+readr(readr包)，readxl(readxl包)
+
+--察看数据类型
+str,mode,class
+
+--unique
+提取独立且不同的值
+
+--只要一行有一个字段为NA,则去掉
+na.omit(final)
+--仅去除某些特定列包含NA的
+ final[complete.cases(final[,5:6]),]  或者 final[!is.na(final[,5:6]),] 
+ page_view2[rowSums(is.na(page_view2[,2]))==0,]
+ 
+ --misctools
+  insertRow( m, r, v = NA, rName = "" )
+  
+  --对于data.table，可以使用以下方法进行过滤
+  DT['good_news'=='家装'，]
+  --可以使用以下方法改变列名
+  setname(DT,a=b)
+书签保存http://codego.net/458016/
+
+--order
+o = order(t$a)
+t2 = t[o,]
+--将数据加入数据集以待操作
+attach,detach
+
+--去重 :duplicated找出重复的,对于向量是某一个值,对于数据框是所有维度只要有一个维度不同就是不同的
+test_rep[!duplicated(test_rep)]
+duplicated()
+test[!duplicated(test[,c(2,3)]),]
+
+--向量式更改列名
+colnames(raw_data_buyer) = mapply(substr,y,9,sapply(y,nchar))
+
+--列出路径下所有文件
+list.files('~/data')
+
+终结R可以使用Esc
+
+--将普遍的wildcard改成R能够识别的regular expression
+glob2rx('a*')
+
+--remove NA in dataframe
+删除表中全部为NaN的行
+df.dropna(axis=0,how='all')  
+删除表中含有任何NaN的行
+df.dropna(axis=0,how='any') #drop all rows that have any NaN values
+删除NaN所在的列：
+删除表中全部为NaN的列
+df.dropna(axis=1,how='all') 
+删除表中含有任何NaN的列
+df.dropna(axis=1,how='any') #drop all rows that have any NaN values
+
+Error: zipping up workbook failed. Please make sure Rtools is installed or a zip application is available to R.
+         Try installr::install.rtools() on Windows. If the "Rtools\bin" directory does not appear in Sys.getenv("PATH") please add it to the system PATH 
+         or set this within the R session with Sys.setenv("R_ZIPCMD" = "path/to/zip.exe")
+         
+         Welcome to installr version 0.19.0
+
+More information is available on the installr project website:
+https://github.com/talgalili/installr/
+
+Contact: <tal.galili@gmail.com>
+Suggestions and bug-reports can be submitted at: https://github.com/talgalili/installr/issues
+
+			To suppress this message use:
+			suppressPackageStartupMessages(library(installr))
+			
+--察看系统配置路径
+Sys.getenv("PATH")
+
+--将字符串转化为变量名
+as.name('x')
+
+--分区间讨论
+dat2 <- cut(dat, breaks = breaks)
+
+--RMarkdown
+![photo](D:/test4.png)
+<img src="./test4.png" width = "300" height = "200" alt="图片名称" align=center />
+<img src="test6.png"/>
+
+可以将图片放置在markdown下的路径，然后使用:![my image](my_image.png) 进行调用
+
+对向量x,y 进行处理cbind(x,y),rbind(x,y)后，变成matrix形式
+
+Including generated images
+
+To compose the path to a plot that is generated in a chunk (but not included), the chunk options opts_current$get("fig.path") 
+(path to figure directory) as well as opts_current$get("label") (label of current chunk) may be useful. The following example uses fig.
+path to include the second of two images which were generated (but not displayed) in the first chunk:
+
+```{r generate_figures, fig.show = "hide"}
+library(knitr)
+plot(1:10, col = "green")
+plot(1:10, col = "red")
+```
+
+```{r}
+include_graphics(sprintf("%sgenerate_figures-2.png", opts_current$get("fig.path")))
+```
+The general pattern of figure paths is [fig.path]/[chunklabel]-[i].[ext], where chunklabel is the label of the chunk where the plot has been generated, i is the plot index (within this chunk) and ext is the file extension (by default png in RMarkdown documents).
+
+--调用函数显式方式
+do.call('rbind',l)
+rbindlist(l)
+
+--启动Rserve
+cd D:\R\R-3.3.3\library\Rserve\libs\x64
+R CMD Rserve --RS-port30120 --no-save --RS-encoding utf8 --RS-enable-remote
+
+--预加载
+从R的安装目录的etc目录下找到Rprofile.site文件(例如R-2.15.0\etc\Rprofile.site)，用记事本打开，在这个文件最后添加一行：
+options(defaultPackages=c(getOption("defaultPackages"), "foreign", "survival"))
+foreign,survival 就是你要加载的包
+
+上次有人问到过如何加载常用的包，其实挺简单的，写个函数放在一个文件中比如function.R,每次直接source那个函数就行了
+http://blog.csdn.net/gtxing/article/details/52738696

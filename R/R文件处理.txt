@@ -1,0 +1,41 @@
+--察看某个包的目录
+system.file(package = "RImpala")
+
+--察看所有包的访问目录
+.libPaths()
+
+--列出文件和文件夹信息
+system("ls -l")
+
+--建立硬连接和软连接
+# 硬连接
+> file.link("readme.txt", "hard_link.txt")
+# 软连接
+> file.symlink("readme.txt", "soft_link.txt")
+
+--文件重命名
+file.rename("A.txt","AA.txt")
+
+--察看文件信息
+file.info
+
+--使用当前目录
+.
+
+--创建有一定内容的文件
+cat("file B\n", file = "B.txt")
+
+# 转换~为用户目录
+> path.expand("~/foo")
+
+--获取上层路径
+最底层子目录
+> dirname("/home/conan/R/fs/readme.txt")
+--获取上层文件夹名
+basename(getwd())
+
+--拼接目录字符串
+file.path('p1','p2','p3')
+
+发现首页
+

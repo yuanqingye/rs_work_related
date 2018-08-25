@@ -1,0 +1,34 @@
+如何把具有复杂功能的语句变成工具箱的内容，进行使用，意识
+
+distinct
+后面的所有的字段为整体进行区分
+
+SELECT reverse(split(reverse('/apps/ca/yanh/employee.txt'),'/')[0]) AS linux_file_name FROM employee LIMIT 1;
+REVERSE将输出转换为单独元素，而COLLECT_SET和COLLECT_LIST则是反过来将元素组合成集合进行输出。COLLECT_SET和COLLECT_LIST的不同在COLLECT_SET返回的集合不含重复元素，而COLLECT_LIST则可以包含重复元素。
+
+select *, count(distinct name) from table group by name
+
+行转列汇总
+select id,group_concat(re_id order by re_id separator ",") as re_id
+from tablename
+group by id
+
+hive 版本
+select 
+concat_ws('->', collect_set(p_title)) as transfer_link
+from ods_app_pageview_info where 
+l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and path='p'  
+and l_city!='测试'
+and dt=20170423
+group by u_mid having (max(ts)-min(ts))/1000/3600>1
+
+cast(add_count as string)
+collect_set改成collect_all/collect_list
+
+--update hive/impala
+insert overwrite table mid.mid_tracf_sample
+select s.u_mid,s.flag,from_timestamp(now(),'yyyyMMdd') from mid.mid_tracf_sample s
+

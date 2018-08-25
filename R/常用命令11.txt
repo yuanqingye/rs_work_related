@@ -1,0 +1,179 @@
+pkg (包的名字，请使用一个有意义的名字，不要照抄这里的pkg三个字母)
+|
+|--DESCRIPTION (描述文件，包括包名、版本号、标题、描述、依赖关系等)
+|--R (函数源文件)
+   |--function1.R
+   |--function2.R
+   |--...
+|--man (帮助文档)
+   |--function1.Rd
+   |--function2.Rd
+   |--...
+|--...
+
+设置建包地址为默认地址
+package.skeleton(name="tp368",code_files="./tp367/R/test_roxygen.R")
+or
+setwd("~/R_Projects/abnormal_activity_analysis/Rfile")
+package.skeleton(name="abnormTestOnlineFunc",code_files="./test_func.R")
+
+library(roxygen2)
+remove files in man
+add roxygen frame for all function then run
+roxygenize("abnormTestOnlineFunc")
+library(devtools)
+build("abnormTestOnlineFunc")
+install("abnormTestOnlineFunc")
+
+-- if you want to create inside linux environment or you do not have devtools
+R CMD check D:/R-Pkg-Produce/hello   #检查r包hello
+R CMD build D:/R-Pkg-Produce/hello   #检查r包hello
+install.packages("./tp368_1.0.tar.gz",repos = NULL,type = "source")
+
+CV_Folds <- createMultiFolds(y, k = 10, times = 3)
+
+You can now create and use multiple cursors within RStudio. Multiple cursors can be created in a variety of ways:
+
+Press Ctrl + Alt + {Up/Down} to create a new cursor in the pressed direction,
+
+Press Ctrl + Alt + Shift + {Direction} to move a second cursor in the specified direction,
+
+Use Alt and drag with the mouse to create a rectangular selection,
+
+Use Alt + Shift and click to create a rectangular selection from the current cursor position to the clicked position.
+
+RStudio also makes use of multiple cursors in its Find / Replace toolbar now. After entering a search term, if you press the All button, all items matching that search term are selected.
+
+You can use CTRL + . to quickly navigate between files and symbols within a project. Previously, this search utility performed prefix matching, and so it was difficult to use with long file / symbol names. Now, the CTRL + . navigator uses fuzzy matching to narrow the candidate set down based on subsequence matching, which makes it easier to navigate when many files share a common prefix—for example, to test- files for a project managing its tests with testthat.
+
+You can use Ctrl + Shift + E to select everything within the nearest pair of opening and closing brackets, or use Ctrl + Alt + Shift + E to expand the selection up to the next closing bracket.
+
+You just want to call an external application: wouldn't the following work?
+
+Using Java to call R
+Runtime.getRuntime().exec("Rscript myScript.R"); 
+
+进阶的办法，有共通的地方
+set seeds in caret
+trControl = trainControl(method = "boot", seeds = seeds)
+
+qqnorm(train_pn$max_stay)
+qqline(train_pn$max_stay)
+
+transform of the data
+Ecdf() in the CRAN package Hmisc.
+P = ecdf(train_pn$max_stay)
+P(50000)
+temp = qnorm(P(train_pn$max_stay))
+
+#To test if all values are equal:
+all(a == b) # TRUE
+#To test if objects are identical (they are not, they have different column names):
+identical(a,b) # FALSE: class, colnames, rownames must all match.
+
+dbSendUpdate(con,"create table test.test_umid1 (name string,sign string,abnorm_prob string,normal_prob string) partitioned by (dt string)")
+
+.libPaths(c(.libPaths(), "~/userLibrary"))
+
+R Change envir var
+
+R add HOME in .Renviron to change default ~
+R add R_LIBS_USER in .Renviron to change default library (where to install and where to load) 必须在执行路径下，保留该文件一份
+
+library(ipify)
+get_ip()
+[1] "58.246.174.226"
+> x <- system("ipconfig", intern=TRUE)
+
+insert roxygen skeleton for all fun
+change tilde for R
+geocode 2500
+R quickly save dataframe SQL
+r write data frame to hive
+roxygen2 tutorial
+RStudio doesn't have a "disabled" state for breakpoints. You can clear (remove) all the breakpoints via Debug -> Clear All Breakpoints. 
+ ## R
+ Sys.getenv("R_USER")
+ # [1] "C:\\Users\\Josh"
+ Sys.setenv(R_USER="C://")
+ path.expand("~")
+ # [1] "C://"
+ 
+ To set the starting value of "R_USER" for all of your R/Rstudio sessions, just add a line like the following to your ~/.Renviron or $R_HOME/etc/Renviron.site or wherever you prefer. 
+ 
+ About Roxygen package building(problem : missing/empty \title field in)
+ https://stackoverflow.com/questions/13339021/devtools-roxygen-package-creation-and-rd-documentation
+ 
+ copy data from R to SPARK
+ 
+ Bagged CART
+ 
+ R fetch the adjacent row
+ 
+ naive bayes preprocess
+ 
+ test sample random
+ 
+ r naive bayes regularization
+ 
+ R freq for each interval
+ 
+ r test independence
+ 
+ Something is wrong; all the RMSE metric values are missing:
+ 
+ recursive feature selection
+ 
+ Genetic_algorithm
+ 
+ To change the size of the plotting area available for axis labels and text, you can use
+ opts(plot.margin = unit(c(2, 2, 2, 2), "cm"))
+ 
+ dcast stack overflow
+ then melt in contrast
+ 
+ ggplot resize plot
+ r mclust get NA
+ NA in mclust R
+ R intersect multiple sets
+ 
+irisMclust <- Mclust(iris[,1:4])
+summary(irisMclust)
+logLik(irisMclust)
+
+calculate rate between two rows
+always_allow_html: yes rmarkdown
+
+R AUC calculate
+PLOT intersect area in R
+
+r remove duplicated rows all
+how to detect robot access
+
+r shiny drill down
+
+pros and cons for native bayes
+
+plotting data points on a map
+r put data on a map
+http://www.milanor.net/blog/maps-in-r-plotting-data-points-on-a-map/
+
+r native baysian
+
+r raster
+
+gDistance proj4string
+
+知乎 商业项目 未来前景
+商业地产投资价值
+项目未来价值评估
+
+https://en.wikipedia.org/wiki/Semi-supervised_learning
+
+CRS("+init=epsg:4030")
+
+r install package change directory
+
+https://r-forge.r-project.org/scm/viewvc.php/pkg/R/rgeos_misc.R?view=markup&root=rgeos
+
+sys.frame

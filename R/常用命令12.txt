@@ -1,0 +1,72 @@
+check user agent for R
+se <- html_session("https://httpbin.org/user-agent")
+se$response$request$options$useragent
+
+#Another way to use geocode
+library(googleway)
+key <- "your_api_key"
+google_geocode(address = "San Francisco",
+               key = key)
+			   
+With ggmap version 2.7 or greater (as of 13 Dec, not yet available on Cran, but you can install with devtools::install_github("dkahle/ggmap"), you simply need to run  register_google(key = 'LONG KEY STRING')
+
+change and show user agent
+options("HTTPUserAgent") or getOption("HTTPUserAgent") prints your current settings, and options(HTTPUserAgent="My settings") is the way to change it.
+
+extract columns from data frame using function: subset
+
+library(Hmisc)
+list.tree(test) 查看对象的结构
+
+nametree <- function(X, prefix = "")
+  if( is.list(X) )
+    for( i in seq_along(X) ) { 
+      cat( prefix, names(X)[i], "\n", sep="" )
+      nametree(X[[i]], paste0(prefix, "  "))
+    }
+X <- list(X = list( A = list( a1=1:10, a2=1:10 ), B = 1:10 ))
+nametree(X)
+
+get the element directly
+rmatch <- function(x, name) { 
+  pos <- match(name, names(x)) 
+  if (!is.na(pos)) 
+    return(x[[pos]]) 
+
+  for (el in x) { 
+    if (class(el) == "list") { 
+      out <- rmatch(el, name) #Using Recall will no need the name? 
+      if (!is.null(out)) return(out) 
+    } 
+  } 
+} 
+
+改变矩阵或数据框类型
+class(matrix) = "numeric"
+
+调整网络等待结果时间
+options(timeout= 4000000)
+
+rstudio 去函数定义文件f2
+
+e <- new.env() #create new environment
+`%=%` <- function(x,y) {assign(x,y,envir = e)}
+"d" %=% 5
+e$d
+
+R中错误控制：
+tryCatch({
+    expr
+}, warning = function(w) {
+    warning-handler-code
+}, error = function(e) {
+    error-handler-code
+}, finally = {
+    cleanup-code
+}
+
+fix java.lang.outofmemoryerror gc overhead limit exceeded r
+#本身512
+options(java.parameters = "- Xmx1024m")
+
+<<- if it could find var in search() then assign it to that environment else it will assign to globalenvironment

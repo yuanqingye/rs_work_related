@@ -1,0 +1,42 @@
+通过不同渠道找出样本
+根据样本id找到其相关信息
+通过样本及其信息训练模型
+通过模型判断每天情况
+
+-- 考虑停留时长以及浏览页数
+select i.*,p.pv from
+(select u_mid,dt,count(*) pv from dm.dm_app_pageview_info where dt > '20171112' and platf_lv1 = "APP" and path = "p" group by u_mid,dt) p
+left join (select max(cast(p_stay_time as int)) max_stay,min(cast(p_stay_time as int)) min_stay,avg(cast(p_stay_time as int)) avg_stay,u_mid,dt from dm.dm_app_pageview_info
+where dt > '20171112' and p_stay_time is not null and platf_lv1 = "APP" and path = "p" group by u_mid,dt) i on p.u_mid = i.u_mid and p.dt = i.dt;
+
+AnalysisException: Syntax error in line 1: ...unt_all,count(if(m.isnew == "new","new",NULL)) count_n... ^ Encountered: = Expected: CASE, CAST, EXISTS, FALSE, IF, INTERVAL, NOT, NULL, TRUNCATE, TRUE, IDENTIFIER CAUSED BY: Exception: Syntax error 
+
+-- 新旧用户 在城市，机型，IP，同一号码区段上新用户占比超过70%
+-- 找出城市中异常部分
+select x.*,x.count_new/x.count_all perc from
+(select m.l_city,m.dt,count(*) count_all,count(if(m.isnew = "new","new",NULL)) count_new from 
+(select i.*,case when (regexp_replace(to_date(firstonlinetime),'-','')) = i.dt then 'new' else 'old' end isnew from dm.dm_app_pageview_info i inner join dl.umid_firstonlinetime f on i.u_mid = f.u_mid
+where f.dt = '20171204') m group by m.l_city,m.dt) x
+
+-- 找出手机型号中异常部分
+select x.*,x.count_new/x.count_all perc from
+(select m.d_model,m.dt,count(*) count_all,count(if(m.isnew = 'new','new',NULL)) count_new from 
+(select i.*,case when (regexp_replace(to_date(firstonlinetime),'-','')) = i.dt then 'new' else 'old' end isnew from dm.dm_app_pageview_info i inner join dl.umid_firstonlinetime f on i.u_mid = f.u_mid
+where f.dt = '20171204') m group by m.d_model,m.dt) x
+
+
+
+--清远范例
+select u_mid,max(cast(p_stay_time as int)) max_stay,min(cast(p_stay_time as int)) min_stay,avg(cast(p_stay_time as int)) avg_stay,count(*) pv 
+from dm.dm_app_pageview_info where l_city in ("清远","清远市","qingyuan","qingyuanshi") and dt = "20171112" and path = "z"
+group by u_mid ;
+
+--清远综合版:普通
+select base.*,umid_count_same_ip from 
+(select u_mid,l_ip,max(cast(p_stay_time as int)) max_stay,min(cast(p_stay_time as int)) min_stay,avg(cast(p_stay_time as int)) avg_stay,count(*) pv 
+from dm.dm_app_pageview_info where l_city in ('清远','清远市','qingyuan','qingyuanshi') and dt = '20171112' and path = 'z'
+group by u_mid,l_ip) base left join (select count(distinct u_mid) umid_count_same_ip,l_ip from dm.dm_app_pageview_info where l_city in 
+                                     ('清远','清远市','qingyuan','qingyuanshi') 
+and dt = '20171112' and path = 'z' group by l_ip) iptb on base.l_ip = iptb.l_ip;
+
+select * from dm.dm_app_pageview_info where u_mid in (select u_mid from mid.mid_tracf_sample)

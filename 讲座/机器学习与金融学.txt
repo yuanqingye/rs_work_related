@@ -1,0 +1,68 @@
+AI in fintech
+
+金融
+
+现金流巨大的地方,对AI需求很大
+ranking算法初始没有使用AI
+
+AI/AGI Review
+通用人工智能
+
+machine perception
+语音识别
+machine cognition 
+natural language, reasoning,attention,memory,learing
+decision making
+
+Deep Learning+reinforcement+unsupervised Learning
+
+step1:machine Learning
+step2:machine Intelligence
+step3:machine consciousness
+
+sl:classfication,regression
+usl:clustering,density estimation dim reduction rule extraction
+
+reinforcement learning:AlphaGo
+
+spam detection
+creditcard fraud detection
+digit recogonition
+pproduct recommendation
+voice recogonition
+stock market
+
+automating feature discovery
+discovery and representing higher-level abstractions
+
+Different learning systems
+
+从古典机器学习到深度机器学习
+
+1大数据
+2Deep representation of learning problem
+3large scale computation power
+4learning algorithm(SGD) is generally simple while effective
+5open source projects , democratize deep learning + reinforcement learning. many developer can do cutting edge AI with less difficulties
+
+geoffrey hinton 
+yann lecun 
+yoshua bengio 
+vladimir vapnik
+
+架构体系
+autoencoder
+CNN convolutional neural networks
+RNN:RECURRENT NEURAL NETWORKS:序列化解决问题
+RL
+
+Application in fintechAYASDI INDICO ALPHASENSE
+
+1Credit Scoring（蚂蚁金服）
+黑箱模型：DNN GBDT RF 无可解释性
+透明模型：LR(Logistic regression), Scorecard,segmented Scorecard
+
+debug 模型需要功底
+区块链：不暴露自己数据情况下进行研究
+modern portfolio theory(期权等定价有了公允值，流通变得更顺畅)，加入先验后的模型 deep portfolio theory
+自然语言处理和知识图谱（不同行业有不同的东西）

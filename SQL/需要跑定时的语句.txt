@@ -1,0 +1,3 @@
+需要进入定时的SQL:
+
+select l_city,dt,count(*) num from dm.dm_app_pageview_info group by l_city,dt having num <50

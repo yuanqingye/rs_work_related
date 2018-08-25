@@ -1,0 +1,67 @@
+怎么样给linux文件添加可执行权限
+如果给所有人添加可执行权限：chmod a+x 文件名；
+如果给文件所有者添加可执行权限：chmod u+x 文件名；
+如果给所在组添加可执行权限：chmod g+x 文件名；
+如果给所在组以外的人添加可执行权限：chmod o+x 文件名；
+
+查看系统版本
+cat /etc/issue
+
+bash:大多数Shell使用的
+
+cd - 切换到上一个目录
+
+ls -lrst
+
+history 查看所有执行过的命令
+
+cat -n come.sh
+
+cat > log.log <<EOF
+touch
+
+less好于more,cat
+
+head,tail
+
+echo "how are you" >> log.log
+
+vim 命令模式下 !!ls 
+
+普通模式下 /apache
+
+bash a.sh 20180101 20180202
+
+date = "$1"
+
+cal
+
+find 查找文件
+
+expr length "this is xxx"
+expr 10+10
+
+let no++ bash 内部变量
+
+ps 查看文件进程
+按内存，按CPU排序 ps -aux -sort
+
+系统变量：
+$0 当前脚本文件名
+
+basename 取文件名
+dirname 取目录名
+
+shell中单小括号，双小括号
+shell中单方括号，双方括号
+
+使用source可以调用其他可执行文件里的函数
+
+test -e 文件是否存在
+
+for in $(seq 0 4)
+
+定义函数 
+function funname{
+
+}

@@ -1,0 +1,158 @@
+--标准化
+zVar <- (myVar - mean(myVar)) / sd(myVar)
+
+library(caret)
+# Assuming goal class is column 10
+preObj <- preProcess(data[, -10], method=c("center", "scale"))
+newData <- predict(preObj, data[, -10])
+You can easily normalize the data also using data.Normalization function in clusterSim package. It provides different method of data normalization.
+
+    data.Normalization (x,type="n0",normalization="column")
+
+Arguments
+
+x
+vector, matrix or dataset type
+type of normalization: n0 - without normalization
+
+n1 - standardization ((x-mean)/sd)
+
+n2 - positional standardization ((x-median)/mad)
+
+n3 - unitization ((x-mean)/range)
+
+n3a - positional unitization ((x-median)/range)
+
+n4 - unitization with zero minimum ((x-min)/range)
+
+n5 - normalization in range <-1,1> ((x-mean)/max(abs(x-mean)))
+
+n5a - positional normalization in range <-1,1> ((x-median)/max(abs(x-median)))
+
+n6 - quotient transformation (x/sd)
+
+n6a - positional quotient transformation (x/mad)
+
+n7 - quotient transformation (x/range)
+
+n8 - quotient transformation (x/max)
+
+n9 - quotient transformation (x/mean)
+
+n9a - positional quotient transformation (x/median)
+
+n10 - quotient transformation (x/sum)
+
+n11 - quotient transformation (x/sqrt(SSQ))
+
+n12 - normalization ((x-mean)/sqrt(sum((x-mean)^2)))
+
+n12a - positional normalization ((x-median)/sqrt(sum((x-median)^2)))
+
+n13 - normalization with zero being the central point ((x-midrange)/(range/2))
+
+normalization
+"column" - normalization by variable, "row" - normalization by object
+
+--抽样
+set.seed(1234)
+ind <- sample(2, nrow(bodyfat), replace=TRUE, prob=c(0.7, 0.3))
+bodyfat.train <- bodyfat[ind==1,]
+bodyfat.test <- bodyfat[ind==2,]
+
+--调控图片大小
+pdf( "mygraph.pdf", width = 11, height = 8 )
+png,jpg...
+
+--爬取
+  html_nodes("#titleCast .itemprop span") %>%
+  (You can also use rvest with XML files: parse with xml(), then extract components using xml_node(), xml_attr(), xml_attrs(), xml_text() and xml_tag().)
+  Navigate around a website as if you're in a browser with html_session(), jump_to(), follow_link(), back(), forward(), submit_form() and so on. (This is still a work in progress, so I'd love your feedback.)
+
+--S3与S4区别
+1.在定义S3类的时候，没有显式的定义过程，而定义S4类的时候需要调用函数setClass；
+2.在初始化S3对象的时候，只是建立了一个list，然后设置其class属性，而初始化S4对象时需要使用函数new；
+3.提取变量的符号不同，S3为$，而S4为@；
+4.在应用泛型函数时，S3需要定义f.classname，而S4需要使用setMethod函数；
+5.在声明泛型函数时，S3使用UseMethod(),而S4使用setGeneric().
+
+--察看属于哪个class
+showClass()
+
+--察看是否S4
+is.s4()
+
+--输出语言错误提示变更
+Sys.setenv(LANG = "en")
+
+foreach(key=names(arr), val=arr) %do% print(paste(key,val))
+
+--去除异常值
+x[apply(x, 1, function(x) !all(is.na(x))),]->y
+或
+na.omit(x)
+如果只想去除部分有异常值的列
+现在，我只想过滤部分列：我们就只能用final[complete.cases(final[,5:6]),]结果是：
+
+--替换异常值
+x[ is.na(x) ] <- 0
+
+--去除字符前后空格
+new_data3 <- trim (data)
+
+--把一个变量加入链表，使用c(),会吸收大量内存
+可以考虑先初始化一个向量，然后通过指标加入一个变量
+
+--R 中实现键值对的一种方法
+key <- "width"
+value <- 32
+mylist <- list()
+mylist[[ key ]] <- value
+键值对
+
+List elements in R can be named. So in your case just do
+mylist = list()
+mylist$width = value
+When R encounters this code
+l$somename=something
+where l is a list. It appends to a list an element something, and names it with name somename. It is then can be accessed by using
+l[["somename"]]
+or
+l$somename
+The name can be changed with command names:
+names(l)[names(l)=="somename"] <- "othername"
+Or if you now the position of the element in the list by:
+names(l)[1] <- "someothername"
+
+--rbindlist 效果好于rbind
+
+--建立data.frame的另外一种更复杂的方式
+mydf <- structure(list(longitude = c(128.6979, 153.0046, 104.3261, 124.9019, 
+126.7328, 153.2439, 142.8673, 152.689), latitude = c(-7.4197, 
+-4.7089, -6.7541, 4.7817, 2.1643, -5.65, 23.3882, -5.571)), .Names = c("longitude", 
+"latitude"), class = "data.frame", row.names = c(NA, -8L))
+
+--计算距离
+gdist
+
+--data.table 复杂操作
+DT[,':='(var3=mean(var1+var2),var4=mean(var1*var2)), by=c('sub_grp','grp')]
+
+--data.table 相应操作
+DT = as.data.table(DF)
+system.time(setkey(DT,x,y))
+##    user  system elapsed 
+##    0.13    0.01    0.14
+system.time(ans2 <- DT[list("R","h")])
+##    user  system elapsed 
+##    0.02    0.00    0.02
+可以看到，当我们设置好key后，提取行的操作基本不需要等待时间，比我们平时用的操作快了100倍。要注意的是，如果使用”==”操作符，那么它会扫描整个数组，虽然data.table用这种方法也可以提取，但很慢，要尽量避免。
+
+--qq图做法
+https://wenku.baidu.com/view/0b75f539a7c30c22590102020740be1e650eccf3.html
+
+We can check for inheritance with functions like inherits() or is().
+> inherits(s,"student")
+[1] TRUE
+> is(s,"student")
+[1] TRUE

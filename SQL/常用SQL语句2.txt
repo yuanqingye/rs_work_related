@@ -1,0 +1,63 @@
+-- check sql upper or lower case
+SELECT * FROM my_table 
+WHERE UPPER(some_field) != some_field
+
+SELECT * FROM my_table WHERE my_column = 'my string'
+COLLATE Latin1_General_CS_AS
+This would make a case sensitive search.
+
+SELECT *
+FROM Test
+WHERE col1 
+LIKE '%[abcdefghijklmnopqrstuvwxyz]%'
+collate Latin1_General_CS_AS
+
+SELECT SALE_AMOUNT/LAST_SALE RATE FROM
+(SELECT SALE_AMOUNT,AVG(SALE_AMOUNT) OVER (ORDER BY order_date rows between 1 preceding and 1 preceding) AS LAST_SALE FROM
+(SELECT * FROM TEST.ORDERPRICE where order_id in (5758249,5967046,5998404,6031745,6074912)) a) B
+
+unbounded preceding and 1 following
+
+SELECT a.*,ROW_NUMBER() over (order by order_id) rnum from
+(SELECT * FROM TEST.ORDERPRICE where order_id in (5758249,5967046,5998404,6031745,6074912)) a
+
+SELECT a.*,ptype_count/last_count rate
+from 
+(select t.*,avg(ptype_count) over (order by ptype_count desc rows between 1 preceding and 1 preceding) last_count from
+(select count(*) ptype_count,p_type from dm.dm_app_pageview_info where dt = '20171106' and l_city like '沈阳%' 
+and path = 'z' group by p_type) t) a
+
+SELECT a.*,ptype_count/next_count rate
+from 
+(select t.*,avg(ptype_count) over (order by ptype_count desc rows between 1 following and 1 following) next_count from
+(select count(*) ptype_count,p_type from dm.dm_app_pageview_info where dt = '20171106' and l_city like '沈阳%' 
+and path = 'z' group by p_type) t) a
+
+select t.p_count,ac.all_count,t.p_count/ac.all_count rate from
+(select count(*) p_count,p_type from dm.dm_app_pageview_info where dt = '20171106' and l_city like '沈阳%' 
+and path = 'z' group by p_type) t cross join (select count(*) all_count from dm.dm_app_pageview_info where dt = '20171106' and l_city like '沈阳%' 
+and path = 'z') ac order by t.p_count desc
+
+用例一：
+Case 用于选择语句
+ 
+用例二：
+Case 用于Group by 语句
+
+用例三：
+Case 用于order by 语句
+
+SQL> select
+  2    sum(case u.sex when 1 then 1 else 0 end)男性,
+  3    sum(case u.sex when 2 then 1 else 0 end)女性,
+  4    sum(case when u.sex <>1 and u.sex<>2 then 1 else 0 end)性别为空
+  5  from users u;
+  
+-- 对列进行分割
+select split("116:151:1", '\\:')[0] as gid
+     , split("116:151:1", '\\:')[1] as sid
+     , split("116:151:1", '\\:')[2] as rid
+from database.table
+
+   create table test.pagelevel2 as	
+   select split_part(page_name,'	',1) as page_name,split_part(page_name,'	',2) as depth from test.pagelevel

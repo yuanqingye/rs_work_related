@@ -1,0 +1,58 @@
+チ
+じ臦
+
+#find the closest subways around the mall(need update cause new subways get build fast)
+source("~/R_Projects/rental_model_standard/Rfile/functions.R")
+#put in the proxy setting in R
+Sys.setenv(http_proxy = proxy_url, https_proxy = proxy_url, ftp_proxy = proxy_url)
+#get the closest subway's longitude and latitude(some city missing some)
+closest_subway = find_closest_subways(redstar_location,place_key)
+#get the distance between the mall and the closest subway
+subway_distance = distHaversine(redstar_location[,c('longitude','latitude')],closest_subway[,c('X2','X1')])
+#put mall_name and distance together
+result_subway = cbind(mall_name = redstar_location$mall_name,subway_distance)
+#combine the final result----redstar_result with subway distance result
+redstar_result = merge(redstar_result,result_subway,by = "mall_name")
+
+#get the mall info from the dianping web scrap
+#source the file contains the web scraping coding
+source("~/R_Projects/page_destructure/Rfile/Rvest.R")
+#unsetting proxy setting before web scraping, since that may slow down the scraping speed
+Sys.unsetenv("http_proxy")
+Sys.unsetenv("https_proxy")
+Sys.unsetenv("ftp_proxy")
+#get the unique city list about the mall
+city_list = unique(redstar_points$city)
+#convert word to its pinyin form
+city_list_pinyin = lapply(city_list,pinyin,method = "toneless", sep = "")
+#some pinyin not correct, need correct them by man force 
+city_list_pinyin[[9]] = "eerduosi"
+city_list_pinyin[[14]] = "huhehaote"
+city_list_pinyin[[16]] = "kunming"
+city_list_pinyin[[17]] = "hefei"
+city_list_pinyin[[19]] = "wuxi"
+city_list_pinyin[[20]] = "chengdu"
+city_list_pinyin[[21]] = "shenyang"
+city_list_pinyin[[23]] = "yantai"
+city_list_pinyin[[29]] = "nanjing"
+city_list_pinyin[[32]] = "jinan"
+city_list_pinyin[[34]] = "xiamen"
+city_list_pinyin[[38]] = "shenzhen"
+
+#combind city name and its pinyin name
+city_pinyin_df = data.frame(city_name = city_list,city_pinyin = unlist(city_list_pinyin))
+#get each city's famous business name(may need to update due to city's expansion)
+business_region = dianping_scrapper2(city_list_pinyin)
+#combine city and region name using city's pinyin
+business_region_final = merge(business_region,city_pinyin_df,by.x = "city",by.y = "city_pinyin")
+#get full region name using city name and region name
+pv = paste0(business_region_final$city_name,business_region_final$region)
+business_region_final$location = pv
+
+# geocode only support 2500 connection,so need to seperate them and do them seperately,time bottleneck
+commerce_cord_ch = list()
+commerce_cord_ch[[1]] = lapply(pv[1:2000],geocode)
+commerce_cord_ch[[2]] = lapply(pv[2001:4000],geocode)
+commerce_cord_ch[[3]] = lapply(pv[4001:4500],geocode)
+# using another way to do the geocoding core is google_geocode,it has seperate key
+commerce_cord_ch[[4]] = lapply(pv[4501:length(pv)],getSimplifiedGeoData)

@@ -1,0 +1,68 @@
+#do the assignment by character 
+for(name in shanghai_tables){assign(name,"[["(eval(as.name(name)),1))} #good!
+
+parse made strings become expression,deparse made expression to string
+quote stop the action
+expression(mean(1:10))
+call("mean" , (1:10))
+D(expression(x^2+x*y),"x")
+D(quote(x^2+y*x),"x")
+
+we can seperate function to body and formals
+
+vignette(package="data.table")
+is also a way to get help
+
+plyr::rbind.fill
+library(gtools)
+do.call(smartbind,l)
+
+--搞清楚data.table和data.frame的区别
+total[,sapply(total,mode)=="character",with = FALSE]
+
+--elegant way to do data.table
+total[]=lapply(total, function(x) if(is.character(x)) as.factor(x) else x)
+
+mapply(do.call, fun_list, lapply(arg_list[names(fun_list)], list))
+
+df$textAddress <- mapply(FUN = function(lon, lat) revgeocode(c(lon, lat)), df$lon, df$lat)
+
+-- 改成 UTF-8 
+Sys.setlocale(category = "LC_ALL", locale = "English_United States.1252")
+Sys.setlocale(category = "LC_ALL", "CHS")
+
+if (interactive()) {
+  # table example
+  shinyApp(
+    ui = fluidPage(
+      fluidRow(
+        column(12,
+          tableOutput('table')
+        )
+      )
+    ),
+    server = function(input, output) {
+      output$table <- renderTable(iris)
+    }
+  )
+
+
+  # DataTables example
+  shinyApp(
+    ui = fluidPage(
+      fluidRow(
+        column(12,
+          dataTableOutput('table')
+        )
+      )
+    ),
+    server = function(input, output) {
+      output$table <- renderDataTable(iris)
+    }
+  )
+}
+
+library(Metrics)
+rmse(actual, predicted)
+mae(actual, predicted)
+

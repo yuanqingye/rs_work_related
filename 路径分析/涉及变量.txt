@@ -1,0 +1,14 @@
+r_url 来源地址
+p_url 页面地址
+p_title 页面主题
+p_type 页面类型
+-- r_from 搜索引擎来源
+u_mid 设备id
+-- u_guid 临时id
+-- u_id 登陆用户id
+p_stay_time 停留时间
+-- p_live_time 一个系列操作的时间
+-- path 埋点类型
+service 业务定义的需求名称
+ts 时间戳
+

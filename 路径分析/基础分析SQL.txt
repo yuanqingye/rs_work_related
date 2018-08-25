@@ -1,0 +1,236 @@
+--时间转换
+select from_unixtime(int(1492876795733/1000),'yyyy-MM-dd HH:mm:ss')
+
+--连接两表
+select distinct p1.u_mid,p1.p_url,p2.p_url,p1.r_url,p2.r_url,p1.p_title,p2.p_title,p1.p_type,p2.p_type,p1.service,p2.service,abs(p1.ts-p2.ts)/1000,p1.ts,p2.ts from 
+(select 
+r_url,
+p_url,
+p_title,
+p_type,
+u_mid,
+service,
+dt,
+ts
+from ods_app_pageview_info where 
+l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and path='p'  
+and l_city!='测试'
+and dt=20170423
+) p1 inner join
+(select 
+r_url,
+p_url,
+p_title,
+p_type,
+u_mid,
+service,
+dt,
+ts
+from ods_app_pageview_info where 
+l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and path='p'  
+and l_city!='测试'
+and dt=20170423
+) p2 
+where p1.u_mid = p2.u_mid and abs(p1.ts-p2.ts)<1000*3600 and p1.ts<p2.ts and p1.p_url !=p2.p_url
+
+--基础分组
+select 
+max(ts),min(ts),(max(ts)-min(ts))/1000/3600 timediff
+from ods_app_pageview_info where 
+l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and path='p'  
+and l_city!='测试'
+and dt=20170423
+group by u_mid
+
+--行汇总
+select 
+concat_ws('->', collect_set(p_title)) as transfer_link
+from ods_app_pageview_info where 
+l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and path='p'  
+and l_city!='测试'
+and dt=20170423
+group by u_mid having (max(ts)-min(ts))/1000/3600>1
+
+8gsamxz5=1492979648847; aureuma_cid=a_1492979648000_5d8849aa5ad86deb1cc3bf2663e3eeb; hm_guid=38fd5196-7133-c6a0-cb90-d51a34e3a56a; ku6aj1g8=20170423133408
+
+-- 无重复版链接 
+select
+u_mid,
+concat_ws(',',collect_set(from_unixtime(int(ts/1000),'yyyy-MM-dd HH:mm:ss'))) time_list,
+concat_ws('->',collect_set(p_title)) title_list,
+concat_ws('->',collect_set(p_url)) link_list,
+concat_ws('->',collect_set(p_type)) type_list,
+concat_ws('->',collect_set(path)) path_list
+from 
+(select distinct u_mid,ts,p_title,p_url,p_type,path from ods.ods_app_pageview_info where 
+l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and path='p' or path='z'
+and l_city!='测试'
+and p_domain = 'mmall.com'
+and dt=20170423) a
+group by u_mid
+;
+-- 将包含10个以上链接的条目全取出来
+select
+o.u_mid,
+concat_ws(',',collect_set(from_unixtime(int(ts/1000),'yyyy-MM-dd HH:mm:ss'))) time_list,
+concat_ws('->',collect_set(p_title)) title_list,
+concat_ws('->',collect_set(p_url)) link_list,
+concat_ws('->',collect_set(p_type)) type_list,
+concat_ws('->',collect_set(path)) path_list
+from 
+(select distinct u_mid,ts,p_title,p_url,p_type,path from ods.ods_app_pageview_info where 
+l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and path='p' or path='z'
+and l_city!='测试'
+and p_domain = 'mmall.com'
+and dt=20170423) o
+inner join 
+(select i.u_mid from ods.ods_app_pageview_info i where dt = 20170423 group by u_mid having count(*)>10) s on o.u_mid = s.u_mid
+group by o.u_mid
+;
+
+select
+o.u_mid,
+concat_ws(',',collect_list(from_unixtime(int(ts/1000),'yyyy-MM-dd HH:mm:ss'))) time_list,
+concat_ws('->',collect_list(p_title)) title_list,
+concat_ws('->',collect_list(p_url)) link_list,
+concat_ws('->',collect_list(p_type)) type_list,
+concat_ws('->',collect_list(path)) path_list
+from 
+(select distinct u_mid,ts,p_title,p_url,p_type,path from ods.ods_app_pageview_info where 
+l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='测试'
+and p_domain = 'mmall.com'
+and dt=20170423) o
+inner join 
+(select i.u_mid from ods.ods_app_pageview_info i where dt = 20170423 
+and l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='测试'
+and p_domain = 'mmall.com'
+group by u_mid having count(*)>10) s on o.u_mid = s.u_mid
+group by o.u_mid
+;--完整版
+
+-- 字典
+SELECT DISTINCT split(b.value,' ')[0] AS path, split(c.value,' ')[0] AS p_domain, split(d.value,' ')[0] AS p_channel, a.page_name_en AS p_type, a.page_name_zh
+FROM dl.dl_data_point_rule_t_rule_dt a
+LEFT JOIN dl.dl_data_point_rule_t_code_dt b
+  ON a.path_type_value=b.id
+    AND b.status=1
+LEFT JOIN dl.dl_data_point_rule_t_code_dt c
+  ON a.p_domain_type_value=c.id
+    AND c.status=1
+LEFT JOIN dl.dl_data_point_rule_t_code_dt d
+  ON a.p_channel_type_value=d.id
+    AND d.status=1
+WHERE a.status=1 and a.page_name_zh not like '%-%'
+AND split(b.value,' ')[0]='p'
+ORDER BY  path,p_domain,p_channel,p_type
+
+--  带字典的路径分析
+select
+u_mid,
+concat_ws(',',collect_set(from_unixtime(int(ts/1000),'yyyy-MM-dd HH:mm:ss'))) time_list,
+concat_ws('->',collect_set(p_title)) title_list,
+concat_ws('->',collect_set(name_ch)) name_ch_list,
+concat_ws('->',collect_set(p_type)) type_list,
+concat_ws('->',collect_set(name_en)) name_en_list
+from 
+(select distinct ai.u_mid,dr.page_name_zh as name_ch,ai.p_type,ai.p_title,dr.page_name_en name_en,ai.ts from 
+ods.ods_app_pageview_info ai inner join dl.dl_data_point_rule_t_rule_dt dr
+on ai.page=dr.page_mark where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='测试'
+order by ai.u_mid,ai.ts) m_result_pageview_and_dict
+group by u_mid
+;
+
+--带路径 数限制的语句:
+select
+u_mid,
+concat_ws(',',collect_set(from_unixtime(int(ts/1000),'yyyy-MM-dd HH:mm:ss'))) time_list,
+concat_ws('->',collect_set(p_title)) title_list,
+concat_ws('->',collect_set(name_ch)) name_ch_list,
+concat_ws('->',collect_set(p_type)) type_list,
+concat_ws('->',collect_set(name_en)) name_en_list
+from 
+(select distinct ai.u_mid,dr.page_name_zh as name_ch,ai.p_type,ai.p_title,dr.page_name_en name_en,ai.ts from 
+ods.ods_app_pageview_info ai inner join dl.dl_data_point_rule_t_rule_dt dr
+on ai.page=dr.page_mark where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='测试'
+order by ai.u_mid,ai.ts) m
+inner join 
+(select i.u_mid,count(distinct i.ts) from ods.ods_app_pageview_info i where dt = 20170423 
+and l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='测试'
+and p_domain = 'mmall.com'
+group by u_mid having count(distinct i.ts)=2) s on m.u_mid = s.u_mid
+group by m.u_mid
+;
+
+--路径分析细节SQL
+select
+m.u_mid,
+r_url,
+p_url,
+name_ch,
+p_type,
+p_title,
+name_en,
+ts
+from 
+(select distinct ai.u_mid,ai.p_url,ai.r_url,dr.page_name_zh as name_ch,ai.p_type,ai.p_title,dr.page_name_en name_en,ai.ts from 
+ods.ods_app_pageview_info ai inner join dl.dl_data_point_rule_t_rule_dt dr
+on ai.page=dr.page_mark where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='测试'
+order by ai.u_mid,ai.ts) m
+inner join 
+(select i.u_mid,count(distinct i.ts) from ods.ods_app_pageview_info i where dt = 20170423 
+and l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='测试'
+and p_domain = 'mmall.com'
+group by u_mid having count(distinct i.ts)>=5) s on m.u_mid = s.u_mid
+;

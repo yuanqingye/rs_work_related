@@ -1,0 +1,109 @@
+If you really want to invoke the debugger on every error, always, this will do the job:
+options(error = browser())
+This overrides RStudio’s error handler settings. Trapping every error will quickly become annoying, though, so be sure to use the Debug menu to change the error option back when you’re done troubleshooting (or turn off error handling entirely with 
+
+options(error=recover)
+options(error=NULL)
+#old record
+(function () 
+{
+    .rs.breakOnError(TRUE)
+})()
+
+trace()
+When the at argument is supplied, it can be a vector of integers referring to the substeps of the body of the function (this only works if the body of the function is enclosed in { ...}. In this case tracer is not called on entry, but instead just before evaluating each of the steps listed in at. (Hint: you don't want to try to count the steps in the printed version of a function; instead, look at as.list(body(f)) to get the numbers associated with the steps in function f.)
+
+You can change this by setting the working directory in the Rprofile.site file. This is in “your-R-version-directory/etc/”.
+On a new line add:
+setwd("C:/NewSaveLocation")
+
+提取pdf内表格
+malls = extract_tables("C://Users/qingye.yuan/Downloads/mall.pdf",encoding = "UTF-8")
+
+readChar(fileName, file.info(fileName)$size)
+
+#get different column for different row
+You can do this by indexing your data.frame with a matrix. The first column indicates row, the second indicates column. So if you do
+DATA[cbind(1:nrow(DATA), column.list)]
+
+Thanks to KY’s comment, I noticed the ?join function in the {plyr} library. This function is similar to merge (with less features, yet faster), 
+and also automatically keeps the order of the x (first) data.frame used for merging
+
+#environment changing: 环境改变
+1
+e <- new.env()
+with(e, {foo <- bar; foo2 <- bar2})
+2
+e <- new.env()
+`%=%` <- function(x,y) {assign(as.character(substitute(x)),y,envir = e)}
+d %=% 5
+3
+(eval/evalq)Evaluate an R expression in a specified environment.
+
+#察看变量环境
+1
+library(pryr)
+x <- 5
+where("x")
+
+2
+#找出当下所有环境
+envirs <- ls()[sapply(ls(), function(x) is.environment(get(x)))]
+#看看每个变量在哪个环境
+sapply(envirs, function(e) 'x' %in% ls(envir=get(e)))
+
+getEnv <- function(x) {
+  xobj <- deparse(substitute(x))
+  gobjects <- ls(envir=.GlobalEnv)
+  envirs <- gobjects[sapply(gobjects, function(x) is.environment(get(x)))]
+  envirs <- c('.GlobalEnv', envirs)
+  xin <- sapply(envirs, function(e) xobj %in% ls(envir=get(e)))
+  envirs[xin] 
+}
+
+#调整是否显示文字
+```{r conditional_block, echo=FALSE, results='asis', eval=show_text}
+cat("## Hey look, a heading!
+lorem ipsum dolor emet...")
+```
+
+#data.table has the referencial transparency
+bar <- function(DT) {
+    DT[, newcol := 1L]        ## old behaviour, original DT gets updated by reference
+    DT[x > 2L, x := 3L]       ## old behaviour, update column x in original DT.
+}
+#you need use shallow() to avoid update on the original data.table
+foo <- function(DT) {
+    DT = shallow(DT)          ## shallow copy DT
+    DT[, newcol := 1L]        ## does not affect the original DT 
+    DT[x > 2L, newcol := 2L]  ## no need to copy (internally), as this column exists only in shallow copied DT
+    DT[x > 2L, x := 3L]       ## have to copy (like base R / dplyr does always); otherwise original DT will 
+                              ## also get modified.
+}
+
+#reach the maximum of the machine
+pen <- sqrt(.Machine$double.xmax)  # penalty term
+
+#function to simulate a very expensive method
+fitness <- function(x)
+{
+  Sys.sleep(0.01)
+  x*runif(1)
+}
+
+#join but not affect the order
+MSE.all.MALLS.mixed = setDT(MSE.all.MALLS)[dest_view, on="mall_name"]
+
+多个表达式可以包裹在花括号中
+输出V2这一列并绘制V3这一列
+> DT[,{print(V2)
+plot(V3)
+NULL}]
+
+#Functional form
+`[.data.table`(DT, , sum(RENTAL), by = MALL_NAME)
+
+pred_result_filter_no_adjacent[[4]] = lapply(lapply(pred_result_filter_no_adjacent[[4]],`[[`,1),`[`,,sum(pred_rent),by = mall_name)
+
+-- check all the dataset in a package
+data(package='arules')

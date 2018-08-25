@@ -1,0 +1,11 @@
+install.packages("DBI", repos="http://cran.wustl.edu",lib = .libPaths()[2])
+
+R_LIBS_USER ~/R/x86_64-pc-linux-gnu-library/3.2
+
+getent passwd
+
+https://www.cnblogs.com/hunttown/p/5802082.html
+
+R CMD BATCH --args file.R
+#或者
+Rscript file.R

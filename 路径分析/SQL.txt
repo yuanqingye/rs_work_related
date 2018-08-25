@@ -1,0 +1,273 @@
+drop table test.umid_step;
+create table test.umid_step
+as
+select  a.dt ,a.u_mid,a.system_time,ts, a.p_domain,a.p_channel,a.p_type,a.p_item,
+regexp_replace(regexp_replace(b.page_name_zh,'主app关闭&切换后台','&'),'主app唤醒','&') page_name_zh,a.path,c.isnew
+    from ods.ods_app_pageview_info  a
+         left outer join 
+         dl.umid_pv c on c.u_mid=a.u_mid and c.dt=a.dt
+         left outer join 
+         test.pathname b on 
+    a.p_domain =   b.p_domain
+         and a.p_channel=b.p_channel
+         and a.p_type=b.p_type
+    and a.p_item=b.p_item
+where 
+a.dt>=20171008 and c.dt>=20171008
+    and a.p_domain='mmall.com' 
+         and l_ip!='210.13.91.146'
+    and service in ('ios.click','android.click','h5.click','ios.pvuv','android.pvuv','h5.pvuv') 
+    and substr(a.u_mid,1,2)!='a_'
+    and a.path in ('f','p') 
+    and l_city!='测试'
+         and a.p_type not in ('page.activate.main')
+    and app_v>='3.0.0'
+         and page_name_zh not in ('主APP首页-底部导航','主app唤醒')
+order by a.u_mid,ts
+
+------                    
+drop table test.umid_lujing;
+create table test.umid_lujing
+as
+select a.dt ,a.u_mid ,a.isnew, concat_ws('->',collect_list(page_name_zh)) lujing
+from       
+test.umid_step a group by a.dt ,a.u_mid ,a.isnew;                                
+
+-----
+drop table test.umid_lujing_split;
+create table test.umid_lujing_split as
+select dt,a.u_mid,a.isnew ,if(behavior like '%->', substr(behavior,0,lens-2) ,behavior)
+from
+(
+  select a.dt ,a.u_mid ,a.isnew,
+     if(substr(behavior,0,2)='->',substr(behavior,3,lens-2),behavior) as behavior,length(if(substr(behavior,0,2)='->',substr(behavior,3,lens-2),behavior)) lens
+    from  
+   (
+   SELECT  a.dt ,a.u_mid ,a.isnew,behavior, length(behavior) lens
+   FROM test.umid_lujing a LATERAL VIEW explode(split(a.lujing,'&')) mytable AS behavior
+   ) a where length(behavior)>2
+)a;
+
+维度: 手机型号(d_model), 地域(l_city,l_province), 渠道, 新老(dl_umid_pv)
+
+待确定指标:日活 总uv
+
+活跃度
+---- 新老用户pv,uv
+select dt,
+count(1) uv,
+sum(pv) pv ,
+sum(pv)/count(1) perpv,
+count(if(isnew='new',1,null)) newuv ,
+sum(if(isnew='new',pv,0)) newpv, 
+sum(if(isnew='new',pv,0))/count(if(isnew='new',1,null)) newperpv,
+count(if(isnew='old',1,null)) olduv ,
+sum(if(isnew='old',pv,0)) oldpv, 
+sum(if(isnew='old',pv,0))/count(if(isnew='old',1,null)) oldperpv
+ from 
+ dl.umid_pv where dt>=20170901
+ group by dt
+ 
+--- 使用时长
+
+	select dt,
+	avg(persvg),
+	avg(case when isnew ='new' then persvg else null end) newavg,
+	avg(case when isnew ='old' then persvg else null end) oldavg
+	from
+	(
+		select a.dt,a.u_mid,
+		sum(p_stay_time)/1000/60 persvg,
+		case when regexp_replace(to_date(firstonlinetime),'-','')=a.dt then 'new' else 'old' end isnew 
+		from 
+		ods.ods_app_pageview_info a 
+		left outer join 
+		dl.umid_firstonlinetime b  on a.u_mid=b.u_mid 
+		 where a.dt>=20170901 and  b.dt=20170929 and
+		p_domain='mmall.com'    and service like '%staytime%' and substr(a.u_mid,1,2)!='a_' and path='z'  and l_city!='测试'
+							and p_type not in ('page.closedown','page.wakeup','page.activate.main') and length(p_stay_time)<=7
+		group by  a.dt,a.u_mid,case when regexp_replace(to_date(firstonlinetime),'-','')=a.dt then 'new' else 'old' end 
+	)a group by dt
+
+
+---深度
+select a.dt,isnew,a.p_channel,b.depth,count(1) from 
+dm.dm_app_umid_step a  
+left outer join 
+test.pagelevel b on a.page_name_zh=b.page_name where length(b.depth)=1 group by a.dt,isnew,b.depth,a.p_channel	 
+
+黏性
+---- 留存
+ 	select 
+	a.dt,count(distinct a.u_mid) t,
+		 count(distinct case when  datediff(concat(substr(b.dt,1,4),'-',substr(b.dt,5,2),'-',substr(b.dt,7,2)),
+						concat(substr(a.dt,1,4),'-',substr(a.dt,5,2),'-',substr(a.dt,7,2)))=1 then a.u_mid else null end)	t1,
+	
+		count(distinct if(a.isnew='new',a.u_mid,null)) newuv ,
+		 count(distinct case when  datediff(concat(substr(b.dt,1,4),'-',substr(b.dt,5,2),'-',substr(b.dt,7,2)),
+						concat(substr(a.dt,1,4),'-',substr(a.dt,5,2),'-',substr(a.dt,7,2)))=1  and a.isnew='new' then a.u_mid else null end)	newt1,
+		count(distinct if(a.isnew='old',a.u_mid,null)) olduv ,
+		 count(distinct case when  datediff(concat(substr(b.dt,1,4),'-',substr(b.dt,5,2),'-',substr(b.dt,7,2)),
+						concat(substr(a.dt,1,4),'-',substr(a.dt,5,2),'-',substr(a.dt,7,2)))=1  and a.isnew='old' then a.u_mid else null end)	noldt1
+			from dl.umid_pv a
+					left outer join
+				  dl.umid_pv b on a.u_mid=b.u_mid		
+					where  a.dt>=20170901	group by a.dt
+					
+ ----访问频率
+ 已写好
+
+ ---- 购买订单领券等问题
+ 
+ 1如何排除无效订单 order_status not in 1,7,19
+ 2ods.ods_tx_order_tx_order_dt 包括所有系统订单了吗? order_type = 1 销售单 plantform = 3 线上 , 1 pc, 2 线下app龙果收银,
+ 线下无purchaser_id, using mobile_number from center_users_dt(有 open_id) 关联
+ 
+ 在转化方面，其中有17%的领券人、16.5%的预约、31%的线上订单、34.5%的im会话来自内部人员。??
+ 
+ ----- 领券、预约、order、im
+create table test.booking
+as
+         select
+                   regexp_replace(to_date(create_date),'-','') dt,
+                   c.openid,
+                   'booking' type
+                   from
+                   ods.ods_jz_business_jz_activity_user_dt b 
+                   join 
+                   ods.ods_db_user_center_users_dt c on b.user_mobile=c.mobile
+                   
+                   where b.is_del=0  and to_date(create_date)>='2017-10-01'
+                   group by  
+                   regexp_replace(to_date(create_date),'-',''),
+                                     c.openid;
+         
+         create table test.orders
+         as
+         select  
+         regexp_replace(to_date(create_date),'-','') dt,
+         purchaser_id openid,
+         'orders' type from 
+         ods.ods_tx_order_tx_order_dt a
+         where 
+         to_date(create_date)>='2017-10-01' and 
+         a.order_type=1  and plantform in (3) and a.order_status not  in (1,7,19) 
+         group by regexp_replace(to_date(create_date),'-',''),purchaser_id;
+         
+         create table test.coupon
+         as
+         select  regexp_replace(to_date(create_time),'-','') dt,
+         open_id openid, 'coupon' type 
+         from ods.ods_marketing_center_mmc_user_coupon_dt where 
+         to_date(create_time)>='2017-10-01'
+         and channel_id not in (2,4) and open_id!=''
+         group by regexp_replace(to_date(create_time),'-',''),open_id;
+         
+         create table test.im
+         as
+         select stat_date dt ,split(send,'_')[1] openid, 'im' type 
+         from 
+         dm.im_info a where split(send,'_')[0]=1 and stat_date>=20171001 and split(rec,'_')[0]=2;
+
+		 
+		 
+		  cat dm_app_user_pathdetail.sh
+hive -e "
+--用户原始路径
+insert overwrite table dm.dm_app_umid_step
+select a.dt,a.u_mid,a.system_time,ts,a.p_domain,a.p_channel,a.p_type,a.p_item,
+       regexp_replace(regexp_replace(b.page_name_zh,'主app关闭&切换后台','&'),'主app唤醒','&') page_name_zh,a.path,c.isnew
+from ods.ods_app_pageview_info a
+left join dl.umid_pv c on c.u_mid=a.u_mid and c.dt=a.dt
+left join (select * from test.pathname
+           union all
+		   select * from test.pathnamef
+		  ) b on a.p_domain=b.p_domain and a.p_channel=b.p_channel and a.p_type=b.p_type and a.p_item=b.p_item
+where a.dt>=20170901 and c.dt>=20170901
+  and a.p_domain='mmall.com' and substr(a.u_mid,1,2)!='a_'
+  and service in ('ios.click','android.click','h5.click','ios.pvuv','android.pvuv','h5.pvuv')
+  and a.path in ('f','p') and l_city!='测试' and a.p_type not in ('page.activate.main')
+  and app_v>='3.0.0' and page_name_zh not in ('主APP首页-底部导航','主app唤醒')
+order by a.u_mid,ts;
+
+--用户路径
+insert overwrite table dm.dm_app_umid_path
+select a.dt,a.u_mid,a.isnew,concat_ws('->',collect_list(page_name_zh)) path
+from dm.dm_app_umid_step a
+group by a.dt,a.u_mid,a.isnew;
+
+--用户路径分列
+insert overwrite table dm.dm_app_umid_path_split
+select dt,a.u_mid,a.isnew,if(behavior like '%->', substr(behavior,0,lens-2),behavior) behavior
+from (select a.dt,a.u_mid,a.isnew,
+             if(substr(behavior,0,2)='->',substr(behavior,3,lens-2),behavior) as behavior,
+			 length(if(substr(behavior,0,2)='->',substr(behavior,3,lens-2),behavior)) lens
+      from (select a.dt,a.u_mid,a.isnew,behavior,length(behavior) lens
+            from dm.dm_app_umid_path a lateral view explode(split(a.path,'&')) mytable as behavior
+           ) a where length(behavior)>2
+     )a;
+ 
+ ----路径分析
+ 
+ select * from dl.umid_firstonlinetime f where date_part('date',f.firstonlinetime) =1008;
+
+ select date_part('year',now()) as current_year;
+ 
+ DESCRIBE dl.umid_firstonlinetime
+ 
+ <command> 
+  <job-scheduler>172.16.107.134:10008</job-scheduler>  
+  <execute-server>172.16.107.131</execute-server>  
+  <pool-name>run_hive_data</pool-name>  
+  <name>/usr/local/shell/sunxinming/dc_hr.sh</name>  
+  <arg>#{dw.action.schedule.data.date}</arg>  
+  <arg>set mapreduce.job.queuename=root.mapreduce.dailyetl.normal</arg>  
+  <arg>xinming.sun@chinaredstar.com</arg>  
+  <arg>18918934080</arg> 
+</command>
+
+分行为列
+SELECT pageid, adid FROM pageAds LATERAL VIEW explode(adid_list) adTable AS adid
+
+--users table used to connect order and pvuv, the rule is:
+every online user order will have open_id(purchaser_id)
+connected ods_db_user_center_users_dt with open_id
+and connected pvuv with u_id
+
+for offline user order, using mobile
+connect ods_db_user_center_users_dt with mobile and got open_id
+with that open_id, we connect to pvuv
+
+ods_db_user_center_users_dt
+
+select count(b.u_mid) numbers,firstdt,d_model,l_city from
+(
+select f.u_mid,substr(firstonlinetime,1,10) firstdt,a.d_model,a.l_city 
+	from 
+	dl.umid_firstonlinetime f 
+	left join 
+	(select distinct u_mid,d_model,l_city from ods.ods_app_pageview_info where dt>= 20171020) a  using(u_mid) 
+    where substr(firstonlinetime,1,10) >= '2017-10-20' and f.dt = '20171102'
+	
+	) b group by firstdt,d_model,l_city
+
+	(select * from 
+  (select u_mid,d_model,l_city,ROW_NUMBER() OVER (
+    PARTITION BY u_mid,d_model,l_city
+    ORDER BY dt) as level from ods.ods_app_pageview_info where dt>= 20171104) t where t.level = 1) a
+  using(u_mid) where substr(firstonlinetime,1,10) >= '2017-11-04' 
+  and f.dt = '20171105' and l_city in ("泉州","泉州市","清远","清远市","沈阳","沈阳市")) b group by firstdt,d_model,l_city
+  
+ AnalysisException: Syntax error in line 2: (select a.u_mid,a.l_city,c.ch... ^ Encountered: SELECT Expected: ALL, CASE, CAST, DISTINCT, EXISTS, FALSE, IF, INTERVAL, NOT, NULL, TRUNCATE, TRUE, IDENTIFIER CAUSED BY: Exception: Syntax error 
+ 
+ regexp_replace(l_city,"市","") l_city 
+ 
+ 总体平均时长，新用户平均时长，老用户平均时长
+ 
+ SELECT
+  Column1 , Column 2
+  ROW_NUMBER() OVER (
+    PARTITION BY ACCOUNT_NUM
+    ORDER BY FREQ, MAN, MODEL) as LEVEL
+FROM
+  TEST_TABLE

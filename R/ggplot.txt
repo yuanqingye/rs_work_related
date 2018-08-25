@@ -1,0 +1,54 @@
+ggplot logic explanation : https://stackoverflow.com/questions/38775661/what-is-the-difference-between-geoms-and-stats-in-ggplot2
+
+geom_density_2d(mapping = NULL, data = NULL, stat = "density2d", position = "identity", ..., lineend = "butt", linejoin = "round", linemitre = 1, na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)
+
+stat_density_2d(mapping = NULL, data = NULL, geom = "density_2d", position = "identity", ..., contour = TRUE, n = 100, h = NULL, na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)
+
+hide legend:
+1 geom_point(aes(...), show.legend=F)
+
+2 from r cookbook, where bp is your ggplot:
+Remove legend for a particular aesthetic (fill):
+bp + guides(fill=FALSE)
+It can also be done when specifying the scale:
+bp + scale_fill_discrete(guide=FALSE)
+This removes all legends:
+bp + theme(legend.position="none")
+
+change width of the bar plot
+ggplot(data=data1,mapping=aes(x=obj,y=val,fill=obj,group=factor(1)))+
+  geom_bar(stat="identity",width=0.5)
+  
+ change order of the bar plot
+ data1<-within(data1,{
+  obj<-factor(obj,levels=c("e","f","b","c","d","a"))
+})
+ggplot(data=data1,mapping=aes(x=obj,y=val,fill=obj,group=factor(1)))+
+  geom_bar(stat="identity")
+
+or:
+positions <- c("Goalkeeper", "Defense", "Striker")
+p <- ggplot(theTable, aes(x = Position)) + scale_x_discrete(limits = positions)  
+  
+ put label around the bar
+ ggplot(data=data1,mapping=aes(x=obj,y=val,fill=obj,group=factor(1)))+
+ geom_bar(stat="identity")+
+ geom_text(aes(label = val, vjust = -0.8, hjust = 0.5, color = obj), show.legend = TRUE)
+ 
+ 改变填充颜色 change fill color
+ scale_fill_manual(values=c("red", "blue", "green"))
+ 
+ 改变x轴标签方向
+ g + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ 
+ 画饼状图并使用特制调色板
+ ggplot(data = sale_area,mapping = aes(x = "",y = avg_sale,fill = eval(as.name(catvar))))+geom_bar(stat = "identity")+coord_polar('y',start = 0)+scale_fill_brewer(palette="Dark2")
+ 
+ 解除外在框架：
+ theme_minimal()
+ 
+ 去除图例 remove legend:
+ theme(legend.position="none")
+ 
+ 图中加入图例
+ +geom_text(aes(label=val.mean))

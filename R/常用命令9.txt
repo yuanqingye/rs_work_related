@@ -1,0 +1,76 @@
+mclustModelNames to get the model name list of gaussian mixed model
+
+unmap(train_sample[,"sign"])
+make a dummy variable from a vector
+
+-- to be verified
+opts(plot.margin = unit(c(2, 2, 2, 2), "cm"))
+
+-- show only part of the margin
+p + scale_x_discrete(breaks = c(1:10, seq(15, 35,5)), 
+                     labels = c(1:10, seq(15, 35,5)))
+or
+x <- 11:35
+p + scale_x_discrete(breaks = c(1:35)), 
+                     labels = c(1:10, ifelse(x%%5 == 0, x, "")))				
+
+rent_data_year = rent_data_1219[,c(lapply(.SD[,sum_col,with=FALSE],getYearPara,sum),lapply(.SD[,avg_col,with=FALSE],getYearPara,mean)),by = "mall_name"]
+					 
+If you also want to install rggobi, you can install everything from within R, with the following command:  source("http://www.ggobi.org/downloads/install.r")
+
+For RMSE missing, normally, that is a model fit problem(either resample or other step has some problems)
+If you type warnings() you'll see that in both cases the model fit failed for every resample.
+You can try fitting a single model to your data with the getModelInfo('treebag')[['treebag']]$fit and getModelInfo('treebag')[['treebag']]$predict to help you figure out what's wrong with the model or your data.
+
+#使用进度条
+library(tcltk)  
+u <- 1:2000    
+pb <- tkProgressBar("进度","已完成 %", 0, 100)  
+for(i in u) {  
+   info<- sprintf("已完成 %d%%", round(i*100/length(u)))  
+   setTkProgressBar(pb, i*100/length(u), sprintf("进度 (%s)", info),info)  
+}     
+close(pb)
+
+#使用进度条2
+library(tcltk)
+library(tcltk2)
+root <- tktoplevel()
+l1 <- tk2label(root)
+pb1 <- tk2progress(root, length = 300)
+tkconfigure(pb1, value = 0, maximum = 9)
+tkgrid(l1, row = 0)
+tkgrid(pb1, row = 1)
+for (index in 1:10){
+  tkconfigure(l1, text = paste("Index", index))
+  tkconfigure(pb1, value = index - 1)
+  Sys.sleep(1)
+}  					 
+
+EM
+Goes into BIC, We see the diff between varies num of components
+
+In R the BIC formula is given by:
+2 * loglik - nparams * log(n)
+which is reverse sign of original standard formula
+so the higer the better
+
+specified order 
+factor(data$orderedfield,levels = data$orderedfield)
+
+qy_inter_umid = Reduce(intersect,list(qy_1106_umid,qy_1109_umid,qy_1110_umid,qy_1112_umid,qy_1113_umid))
+
+#Using reduce to make the transform from binary to decimal
+There is a one-liner solution:
+Reduce(function(x,y) x*2+y, a)
+Explanation:
+Expanding the application of Reduce results in something like:
+Reduce(function(x,y) x*2+y, c(0,1,0,1,0)) = (((0*2 + 1)*2 + 0)*2 + 1)*2 + 0 = 10
+
+#二进制字符串转化成具体数字
+library(compositions)
+a <- c(0,0,0,1,0,1)
+achar <- paste(a,collapse="")
+unbinary(achar)
+
+moving average timing strategy

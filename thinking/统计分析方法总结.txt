@@ -1,0 +1,21 @@
+第七章
+(n-1)S/sigma^2 服从卡方分布，自由度为n-1,可用来估计总体方差的置信区间
+
+第八章
+regression
+For one sample or two sample cases, t test is prominent
+for k sample test(k>2), ANOVA takes advantage
+All samples are independent
+
+将一个非正态分布数据通过转换变为正态分布：
+
+X=Φ−1(FY(Y))
+will have a standard normal distribution. This is easy to see, since the CDF of XX is
+
+FX(x)=P(X≤x)=P(Φ−1(FY(Y))≤x)=P(Y≤F−1Y(Φ(x)))=FY(F−1Y(Φ(x)))=Φ(x).
+FX(x)=P(X≤x)=P(Φ−1(FY(Y))≤x)=P(Y≤FY−1(Φ(x)))=FY(FY−1(Φ(x)))=Φ(x).
+If YY is exponentially distributed with rate λλ, then the data could be transformed via
+
+X=Φ−1(1−e−λY),
+
+P = ecdf(train_pn$max_stay) emperical cumulative distribution

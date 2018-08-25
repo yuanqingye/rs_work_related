@@ -1,0 +1,17 @@
+--生成随机数的函数
+rexp The Exponential Distribution
+rf The F Distribution
+rgamma The Gamma Distribution
+rgeom The Geometric Distribution
+rhyper The Hypergeometric Distribution
+rlnorm The Log Normal Distribution
+rlogis The Logistic Distribution
+rmultinom The Multinomial Distribution
+rnbinom The Negative Binomial Distribution
+rnorm The Normal Distribution
+rpois The Poisson Distribution
+rsignrank Distribution of the Wilcoxon Signed Rank Statistic
+rt The Student t Distribution
+runif The Uniform Distribution
+rweibull The Weibull Distribution
+rwilcox Distribution of the Wilcoxon Rank Sum Statistic

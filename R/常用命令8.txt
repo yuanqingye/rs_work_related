@@ -1,0 +1,94 @@
+df <- read.table(textConnection("1|a,b,c\n2|a,c\n3|b,d\n4|e,f"), header = F, sep = "|", stringsAsFactors = F)
+
+s <- strsplit(df$V2, split = ",")
+data.frame(V1 = rep(df$V1, sapply(s, length)), V2 = unlist(s))
+separate_rows(df, V2) in tidyr
+
+data.table way:
+require(data.table)
+d.dt <- data.table(d.df, key="V1")
+out <- d.dt[, list(V2 = unlist(strsplit(V2, ","))), by=V1]
+
+rmarkdown: <font size = 5, face = "宋体", color = "check the code">
+
+-- run application separately
+R -e "shiny::runApp('~/shinyapp')"
+
+-- sum multiple columns together
+You can use colSums(a[,c("Var1", "Var2")]) or rowSums(a[,c("Var_1", "Var_2")]). In your case you want the latter.
+to get the sum of the columns
+
+-- seperate 1 column to several columns according to their values 
+df1 <- data.frame(first = rep(c("A","B","C","D","E")), second = rep(c(1,2),each=5), 
+                 third = rnorm(10))
+dcast(df1, first ~ second, value.var="third")
+
+--changing the order of characters in the way of factor
+mydf$task <- factor(mydf$task, levels = c("up", "down", "left", "right", "front", "back")) then order
+
+--修改进行科学计数法的位数
+默认为 0
+options()$scipen
+
+rmarkdown 可以直接加入html代码
+<table>
+<tr><td>1</td><td>2</td></tr>
+<tr><td>3</td><td>4</td></tr>
+</table>
+
+df = matrix(nrow = 3,ncol = 3)
+df = data.frame(df)
+l = list(c(1,2,3),c(4,5,6),c(7,8,9))
+df[] = l
+
+R 可以用system()调用系统命令，所以整个过程全都可以用 R 完成，Windows 用户需要安装 Rtools 并设置系统环境变量PATH才能使用R CMD SHLIB
+system("R CMD SHLIB calc_tstat.c")
+ 
+sqldf is an R package for performing SQL statements on R data
+frames, optimized for convenience.
+
+Split delimited strings in a column and insert as new rows.
+separate_rows()
+
+converting a matrix to a list
+library(plyr)
+alply(foo, 1)
+
+有自己的办法管理内存的包：
+biglm 可以在很大的数据集上实现回归和广义线性模型
+ff(放在硬盘中以避免限制)&bigmemory(可以放在硬盘，也可以是内存分块)
+
+using unmap to make dummy matrix
+eg: unmap(iris[,5])
+
+setting = Sys.getLocale() --保存设置
+Sys.setlocale(category = "LC_ALL", locale = "English_United States.1252") --修改设置
+Sys.setlocale(category = "LC_ALL", locale = "")
+
+Check for the session info
+sessionInfo()
+
+library(openxlsx)
+ws = createWorkbook()
+addWorksheet(ws,"train_rent")
+addWorksheet(ws,"test_rent")
+addWorksheet(ws,"dest_rent")
+writeData(ws,"train_rent",train_rent)
+writeData(ws,"test_rent",test_rent)
+writeData(ws,"dest_rent",dest_rent)
+saveWorkbook(ws,"~/data/modified_second_edit_rental_data.xlsx")
+
+library(AUC)
+data(churn)
+test_roc = roc(churn$predictions,churn$labels)
+test_auc = auc(test_roc)
+
+source(,chdir=TRUE)
+chdir	
+logical; if TRUE and file is a pathname, the R working directory is temporarily changed to the directory containing file for evaluating.
+
+#找出当下文件路径
+In Rstudio
+temp = dirname(rstudioapi::getActiveDocumentContext()$path)
+getSrcDirectory(getGeoData)
+[1] "C:/Users/qingye.yuan/Documents/R_Projects/rental_model_standard/Rfile"

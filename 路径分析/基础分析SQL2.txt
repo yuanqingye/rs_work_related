@@ -1,0 +1,12 @@
+-- using this to get result with dict name
+select * from ods.ods_app_pageview_info i inner join test.pathname p on i.p_domain = p.p_domain and i.p_channel=p.p_channel and i.p_type=p.p_type and p.p_item = i.p_item where dt = 20170514 and i.p_domain = 'mmall.com' and  (i.service in ('ios.pvuv','android.pvuv')  or (i.u_mid not like 'a_%' and i.service in ('h5.pvuv')));
+
+中文名
+相对深度
+
+select sum(size(split(behavours,','))) page_length,app_v,dt  from test.behaviour where level = '4y' group by app_v,dt
+
+select page_length,count(*) from
+(select sum(size(split(behavours,','))) page_length,app_v,dt  from test.behaviour where level = '4y' group by app_v,dt
+) pl
+group by page_length

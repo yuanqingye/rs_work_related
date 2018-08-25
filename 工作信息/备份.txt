@@ -1,0 +1,242 @@
+select
+u_mid,
+concat_ws(',',collect_set(from_unixtime(int(ts/1000),'yyyy-MM-dd HH:mm:ss'))) time_list,
+concat_ws('->',collect_set(p_title)) title_list,
+concat_ws('->',collect_set(name_ch)) name_ch_list,
+concat_ws('->',collect_set(p_type)) type_list,
+concat_ws('->',collect_set(name_en)) name_en_list
+from 
+(select distinct ai.u_mid,dr.page_name_zh as name_ch,ai.p_type,ai.p_title,dr.page_name_en name_en,ai.ts from 
+ods.ods_app_pageview_info ai inner join dl.dl_data_point_rule_t_rule_dt dr
+on ai.page=dr.page_mark where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='²âÊÔ'
+order by ai.u_mid,ai.ts) m
+inner join 
+(select i.u_mid,count(distinct i.ts) from ods.ods_app_pageview_info i where dt = 20170423 
+and l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='²âÊÔ'
+and p_domain = 'mmall.com'
+group by u_mid having count(distinct i.ts)=2) s on m.u_mid = s.u_mid
+group by m.u_mid
+;
+
+
+---------------------------------------------------------------
+select
+u_mid,
+concat_ws(',',collect_set(from_unixtime(int(ts/1000),'yyyy-MM-dd HH:mm:ss'))) time_list,
+concat_ws('->',collect_set(p_title)) title_list,
+concat_ws('->',collect_set(name_ch)) name_ch_list,
+concat_ws('->',collect_set(p_type)) type_list,
+concat_ws('->',collect_set(name_en)) name_en_list
+from 
+(select distinct ai.u_mid,dr.page_name_zh as name_ch,ai.p_type,ai.p_title,dr.page_name_en name_en,ai.ts from 
+ods.ods_app_pageview_info ai inner join dl.dl_data_point_rule_t_rule_dt dr
+on ai.page=dr.page_mark where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='²âÊÔ'
+order by ai.u_mid,ai.ts) m
+inner join 
+(select i.u_mid,count(distinct i.ts) from ods.ods_app_pageview_info i where dt = 20170423 
+and l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='²âÊÔ'
+and p_domain = 'mmall.com'
+group by u_mid having count(distinct i.ts)=2) s on m.u_mid = s.u_mid
+group by m.u_mid
+;
+
+
+select
+m.u_mid,
+name_ch,
+p_type,
+p_title,
+name_en,
+ts
+from 
+(select distinct ai.u_mid,dr.page_name_zh as name_ch,ai.p_type,ai.p_title,dr.page_name_en name_en,ai.ts from 
+ods.ods_app_pageview_info ai inner join dl.dl_data_point_rule_t_rule_dt dr
+on ai.page=dr.page_mark where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='²âÊÔ'
+order by ai.u_mid,ai.ts) m
+inner join 
+(select i.u_mid,count(distinct i.ts) from ods.ods_app_pageview_info i where dt = 20170423 
+and l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='²âÊÔ'
+and p_domain = 'mmall.com'
+group by u_mid having count(distinct i.ts)=2) s on m.u_mid = s.u_mid
+;
+select
+m.u_mid,
+r_url,
+p_url,
+name_ch,
+p_type,
+p_title,
+name_en,
+ts
+from 
+(select distinct ai.u_mid,ai.p_url,ai.r_url,dr.page_name_zh as name_ch,ai.p_type,ai.p_title,dr.page_name_en name_en,ai.ts from 
+ods.ods_app_pageview_info ai inner join dl.dl_data_point_rule_t_rule_dt dr
+on ai.page=dr.page_mark where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='²âÊÔ'
+order by ai.u_mid,ai.ts) m
+inner join 
+(select i.u_mid,count(distinct i.ts) from ods.ods_app_pageview_info i where dt = 20170423 
+and l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='²âÊÔ'
+and p_domain = 'mmall.com'
+group by u_mid having count(distinct i.ts)>=5) s on m.u_mid = s.u_mid
+;
+
+select
+m.u_mid,
+r_url,
+p_url,
+name_ch,
+p_type,
+p_title,
+name_en,
+ts
+from 
+(select distinct ai.u_mid,ai.p_url,ai.r_url,dr.page_name_zh as name_ch,ai.p_type,ai.p_title,dr.page_name_en name_en,ai.ts from 
+ods.ods_app_pageview_info ai inner join dl.dl_data_point_rule_t_rule_dt dr
+on ai.page=dr.page_mark where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='²âÊÔ'
+order by ai.u_mid,ai.ts) m
+inner join 
+(select i.u_mid,count(distinct i.ts) from ods.ods_app_pageview_info i where dt = 20170423 
+and l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='²âÊÔ'
+and p_domain = 'mmall.com'
+group by u_mid having count(distinct i.ts)>=5) s on m.u_mid = s.u_mid
+;
+
+select
+u_mid,
+concat_ws(',',collect_set(from_unixtime(int(ts/1000),'yyyy-MM-dd HH:mm:ss'))) time_list,
+concat_ws('->',collect_set(p_title)) title_list,
+concat_ws('->',collect_set(name_ch)) name_ch_list,
+concat_ws('->',collect_set(p_type)) type_list,
+concat_ws('->',collect_set(name_en)) name_en_list
+from 
+(select distinct ai.u_mid,dr.page_name_zh as name_ch,ai.p_type,ai.p_title,dr.page_name_en name_en,ai.ts from 
+ods.ods_app_pageview_info ai inner join dl.dl_data_point_rule_t_rule_dt dr
+on ai.page=dr.page_mark where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='²âÊÔ'
+order by ai.u_mid,ai.ts) m
+inner join 
+(select i.u_mid,count(distinct i.ts) from ods.ods_app_pageview_info i where dt = 20170423 
+and l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='²âÊÔ'
+and p_domain = 'mmall.com'
+group by u_mid having count(distinct i.ts)>10) s on m.u_mid = s.u_mid
+group by m.u_mid
+;
+
+select distinct ai.u_mid,ai.p_url,ai.r_url,dr.page_name_zh as name_ch,ai.p_type,ai.p_title,dr.page_name_en name_en,ai.ts, 
+ai.page,dr.page_mark
+from 
+ods.ods_app_pageview_info ai inner join dl.dl_data_point_rule_t_rule_dt dr
+on ai.page=dr.page_mark where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='²âÊÔ'
+order by ai.u_mid,ai.ts
+
+select distinct ai.u_mid,ai.p_url,ai.r_url,b.page_name_zh as name_ch,ai.p_type,ai.p_title,ai.ts, 
+ai.page
+from 
+ods.ods_app_pageview_info ai inner join test.pathname b on ai.path=b.path and ai.p_domain = b.p_domain and ai.p_channel=b.p_channel and ai.p_type=b.p_type and ai.p_item=b.p_item
+where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='²âÊÔ'
+order by ai.u_mid,ai.ts;
+
+select
+m.u_mid,
+r_url,
+p_url,
+name_ch,
+p_type,
+p_title,
+ts
+from 
+(select distinct ai.u_mid,ai.p_url,ai.r_url,b.page_name_zh as name_ch,ai.p_type,ai.p_title,ai.ts, 
+ai.page
+from 
+ods.ods_app_pageview_info ai inner join test.pathname b on ai.path=b.path and ai.p_domain = b.p_domain and ai.p_channel=b.p_channel and ai.p_type=b.p_type and ai.p_item=b.p_item
+where ai.dt=20170423
+and ai.p_domain = 'mmall.com'
+and ai.l_ip!='210.13.91.146'  
+and ai.service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(ai.u_mid,1,2)!='a_' 
+and ai.path='p'  
+and ai.l_city!='²âÊÔ'
+order by ai.u_mid,ai.ts) m
+inner join 
+(select i.u_mid,count(distinct i.ts) from ods.ods_app_pageview_info i where dt = 20170423 
+and l_ip!='210.13.91.146'  
+and service in ('h5.pvuv','ios.pvuv','android.pvuv') 
+and substr(u_mid,1,2)!='a_' 
+and (path='p' or path='z')
+and l_city!='²âÊÔ'
+and p_domain = 'mmall.com'
+group by u_mid having count(distinct i.ts)>=5) s on m.u_mid = s.u_mid
+;
+
+

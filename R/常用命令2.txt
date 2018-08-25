@@ -1,0 +1,130 @@
+--在Rmarkdown正文中嵌入代码结果：
+Two plus two equals `r 2 + 2`.
+
+--快速写入
+openxlsx包可以快速写入
+
+--代码转换
+iconv('name_ch','utf-8','gbk')
+enc2utf8("常州曼哈顿广场") #将console中原来为GBK的中文编码为UTF-8
+或者将背景环境改下Sys.setlocale(category = "LC_ALL", locale = "English_United States.1252")
+Encoding(x) #找出x的编码方式
+Encoding(x) <- value #让x以指定方式编码
+enc2native("常州曼哈顿广场") #将对象以系统native方式进行编码
+
+read.csv("filename",fileEncoding="UTF-8")
+
+--爬虫方法
+rcurl
+rvest
+
+--将不同格式的日期录入
+lct <- Sys.getlocale("LC_TIME"); Sys.setlocale("LC_TIME", "C") #变更设置并储存原设置
+as.Date("2000-03-01",format="%Y-%m-%d")
+as.Date("2000-March-1",format="%Y-%B-%d")
+Sys.setlocale("LC_TIME", lct) #恢复原状
+
+--找到以前的警报
+warnings()
+
+--找出众数
+# Create the function.
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+# Create the vector with numbers.
+v <- c(2,1,2,3,1,2,3,4,1,5,5,3,2,3)
+# Calculate the mode using the user function.
+result <- getmode(v)
+print(result)
+# Create the vector with characters.
+charv <- c("o","it","the","it","it")
+# Calculate the mode using the user function.
+result <- getmode(charv)
+print(result)
+
+--平均数中去掉首末各3位
+When trim = 0.3, 3 values from each end will be dropped from the calculations to find mean.
+mean(x,trim = 0.3)
+
+--取链表中的某个数
+sapply( list( list(1,2,3), list(4,3,6) ), "[[", 1)
+[1] 1 4
+> firsts <- function(lis) sapply(lis, "[[", 1)
+> firsts( list( list(1,2,3), list(4,3,6) ) )
+[1] 1 4
+
+--data.table 
+setname()
+与set()同理，setname()可以修改给定的列名和行名，以下程序是
+#把名字为"old"的列，设置为"new"
+setnames(DT,"old","new") 
+#把"V2","V3"列，设置为"V2.rating","V3.DataCamp"
+setnames(DT,c("V2","V3"),c("V2.rating","V3.DataCamp"))
+setcolorder()
+setcolorder()可以用来修改列的顺序。
+setcolorder(DT,c("V2","V1","V4","V3"))
+
+--使用SDcols去设置所取的列
+DT[, lapply(.SD,sum), by=V2,
++    .SDcols = c("V3","V4")]
+
+--找到系统变量
+Sys.which("java")
+
+--仅使用一部分代码
+source2 <- function(file, start, end, ...) {
+    file.lines <- scan(file, what=character(), skip=start-1, nlines=end-start+1, sep='\n')
+    file.lines.collapsed <- paste(file.lines, collapse='\n')
+    source(textConnection(file.lines.collapsed), ...)
+}
+
+--使用名字来进行rbind
+l=paste('name',list)
+ll = lapply(l,'as.name')
+ln = lapply(lll,'eval')
+rbindlist(ln)
+
+--按照列名进行
+rbindlist(x,y,fill = TRUE)
+
+--对函数scope的探究
+helpFunction<-function(){
+  eval(quote(importantVar1+1), parent.frame())
+}
+helpFunction2 = function(){
+  return(importantVar1+1)
+}
+mainFunction<-function(importantVar1){
+  return(paste(helpFunction(),helpFunction2(),sep = ','))
+}
+mainFunction(3)
+mainfunction <- function(importantVar1) {
+ # declare each of your functions to be used with dynamic scoping like this:
+environment(helpFunction2) <- environment()
+ helpFunction2()
+}
+mainfunction(3)
+
+https://en.wikipedia.org/wiki/Lift_(data_mining)
+confidence/original consequence prob
+The lift for Rule 1 is (3/4)/(4/7) = (3*7)/(4 * 4) = 21/16 ≈ 1.31
+The lift for Rule 2 is (2/3)/(3/7) = (2*7)/(3 * 3) = 14/9 ≈ 1.56
+{\displaystyle \operatorname {lift} (A\Rightarrow 0)={\frac {P(0\mid A)}{P(0)}}={\frac {P(A\land 0)}{P(A)P(0)}}}  \operatorname{lift}(A \Rightarrow 0) = \frac{P(0\mid A)}{P(0)} = \frac{P(A \and 0)}{P(A)P(0)}
+{\displaystyle \operatorname {lift} (B\Rightarrow 1)={\frac {P(1\mid B)}{P(1)}}={\frac {P(B\land 1)}{P(B)P(1)}}}  \operatorname{lift}(B \Rightarrow 1) = \frac{P(1\mid B)}{P(1)} = \frac{P(B \and 1)}{P(B)P(1)}
+
+--将arules里的class变成其他需要class
+frequentdf = as(frequentsets,'data.frame')
+
+--察看data里面的所有数据集
+datas()
+
+--找出某一类特征的变量
+ls(pattern="jo")
+
+--图像识别包
+install.packages("Ropencv")
+
+--找出transaction的结构
+transactionInfo(t)
